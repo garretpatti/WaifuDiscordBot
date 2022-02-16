@@ -1,5 +1,6 @@
 package com.github.waifu;
 
+import com.github.waifu.commands.TenorHandler;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import net.dv8tion.jda.api.JDA;
@@ -9,12 +10,14 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.GatewayIntent;
+import org.json.JSONObject;
 
 import javax.annotation.Nonnull;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Consumer;
 
 /**
  * @author Spitfyre03
@@ -87,10 +90,26 @@ public class App extends ListenerAdapter {
 			TextChannel textChannel = (TextChannel) channel;
 			if (!msg.getContentRaw().equals("")) {
 				String strMsg = msg.getContentRaw().trim();
+				Consumer<JSONObject> memeResponseConsumer = r -> {
+					String url = r.getJSONArray("results").getJSONObject(0).getJSONArray("media").getJSONObject(0).getJSONObject("tinygif").getString("url");
+					textChannel.sendMessage(url).queue();
+				};
+				Consumer<Exception> memeErrorConsumer = e -> System.out.println("Error - " + e.getMessage());
+
 				if (strMsg.equals("!ping")) {
 					textChannel.sendMessage("Pong!").queue();
-				} else if (strMsg.equals("!bing")) {
+				}
+				else if (strMsg.equals("!bing")) {
 					textChannel.sendMessage("Bong!").queue();
+				}
+				else if (strMsg.contains("!cagemebro")) {
+					TenorHandler.getSearchResults("nick cage", memeResponseConsumer, memeErrorConsumer);
+				}
+				else if (strMsg.contains("!smashing")) {
+					TenorHandler.getSearchResults("nigel thornberry smashing", memeResponseConsumer, memeErrorConsumer);
+				}
+				else if (strMsg.startsWith("!tenor") && strMsg.length() > 7) {
+					TenorHandler.getSearchResults(strMsg.substring(7), memeResponseConsumer, memeErrorConsumer);
 				}
 			}
 		}
