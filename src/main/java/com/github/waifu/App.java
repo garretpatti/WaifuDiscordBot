@@ -5,10 +5,12 @@ import com.google.gson.JsonParser;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 
+import javax.annotation.Nonnull;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
@@ -75,5 +77,22 @@ public class App extends ListenerAdapter {
 			}
 		}
 		// else no react-for-role maps set up for this server
+	}
+
+	@Override
+	public void onMessageReceived(@Nonnull MessageReceivedEvent event) {
+		Message msg = event.getMessage();
+		MessageChannel channel = event.getChannel();
+		if (channel.getType().equals(ChannelType.TEXT)) {
+			TextChannel textChannel = (TextChannel) channel;
+			if (!msg.getContentRaw().equals("")) {
+				String strMsg = msg.getContentRaw().trim();
+				if (strMsg.equals("!ping")) {
+					textChannel.sendMessage("Pong!").queue();
+				} else if (strMsg.equals("!bing")) {
+					textChannel.sendMessage("Bong!").queue();
+				}
+			}
+		}
 	}
 }
