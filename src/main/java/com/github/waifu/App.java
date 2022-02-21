@@ -11,6 +11,8 @@ import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEve
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import java.io.FileReader;
@@ -29,24 +31,26 @@ import java.util.regex.Pattern;
 public class App extends ListenerAdapter {
 
 	public static String TOKEN;
+	public static final Logger LOGGER = LoggerFactory.getLogger(App.class);
 
 	// Guild, Message, Role
 	public static final Map<Long, Map<Long, Long>> reactionMap = new HashMap<>();
 
 	public static void main(String[] args) throws InterruptedException {
 		try {
+			LOGGER.info("Loading JDA Application token.");
 			String path = App.class.getResource("/secrets.json").getPath();
 			JsonObject secretsTree = JsonParser.parseReader(new FileReader(path)).getAsJsonObject();
 			TOKEN = secretsTree.get("jda-key").getAsString();
 			if (TOKEN.equals("")) { throw new IllegalStateException("Token jda-key value is empty"); }
+			LOGGER.info("JDA Application token retrieved. Logging in now.");
 		}
 		catch (IOException ioe) {
-			ioe.printStackTrace();
+			LOGGER.error("There was an error while reading the token file.", ioe);
 			return;
 		}
 		catch (IllegalStateException | NullPointerException e) {
-			System.out.println("The secrets file must contain an entry for jda-key");
-			e.printStackTrace();
+			LOGGER.error("The secrets file must contain an entry for jda-key", e);
 			return;
 		}
 
@@ -57,8 +61,7 @@ public class App extends ListenerAdapter {
 			bot = builder.build();
 		}
 		catch (Exception e) {
-			System.out.println("An invalid token was provided in secrets.json. Please remedy before running this bot");
-			e.printStackTrace();
+			LOGGER.error("An invalid token was provided in secrets.json: " + TOKEN, e);
 			return;
 		}
 
