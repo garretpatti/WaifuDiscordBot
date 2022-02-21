@@ -51,7 +51,8 @@ public class App extends ListenerAdapter {
 		}
 
 		JDABuilder builder = JDABuilder.createLight(TOKEN, GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_MESSAGE_REACTIONS);
-		builder.addEventListeners(new App());
+		MessageHandler msgHndlr = MessageHandler.getSingleton();
+		builder.addEventListeners(new App(), msgHndlr);
 		JDA bot;
 		try {
 			bot = builder.build();
@@ -86,8 +87,4 @@ public class App extends ListenerAdapter {
 		// else no react-for-role maps set up for this server
 	}
 
-	@Override
-	public void onMessageReceived(@Nonnull MessageReceivedEvent event) {
-		MessageHandler.respond(event);
-	}
 }

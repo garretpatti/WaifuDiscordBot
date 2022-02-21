@@ -1,0 +1,24 @@
+{
+    "bang_commands": [
+        {
+            "command": "ping",
+            "channels": "all",
+            "handler": "simple",
+            "responses": [
+                "pong"
+            ]
+        },
+        {
+            "command": "bing",
+            "channels": "all",
+            "handler": "simple",
+            "responses": [
+                "bong"
+            ]
+        }
+
+    ],
+    "slash_commands": [
+        
+    ]
+}

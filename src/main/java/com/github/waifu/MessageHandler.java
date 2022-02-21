@@ -1,20 +1,57 @@
 package com.github.waifu;
 
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.annotation.Nonnull;
+
 import com.github.waifu.commands.TenorHandler;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 import org.json.JSONObject;
 
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
-public class MessageHandler {
-    public static void respond(MessageReceivedEvent event){
+public class MessageHandler extends ListenerAdapter {
+
+    private static JsonObject commandTree;
+    private static MessageHandler singleton_instance = null;
+
+    private MessageHandler(){
+        String path = App.class.getResource("/commands.json").getPath();
+        try {
+            commandTree = JsonParser.parseReader(new FileReader(path)).getAsJsonObject();
+            if (commandTree.toString() == "") { throw new IllegalStateException("command.json is empty");}
+        } catch (FileNotFoundException e){
+            System.out.println("command.json is missing");
+            e.printStackTrace();
+			return;
+        }
+    }
+
+    public static MessageHandler getSingleton(){
+        if (singleton_instance == null) {
+            singleton_instance = new MessageHandler();
+        }
+        return singleton_instance;
+    }
+
+    private static Matcher findCommands(String message){
+        Pattern pattern = Pattern.compile("![a-zA-Z0-9]+");
+        Matcher matcher = pattern.matcher(message);
+        return matcher;
+    }
+    
+    @Override
+    public void onMessageReceived(@Nonnull MessageReceivedEvent event) {
         Message msg = event.getMessage();
         MessageChannel channel = event.getChannel();
         if (channel.getType().equals(ChannelType.TEXT)) {
@@ -26,7 +63,15 @@ public class MessageHandler {
                     textChannel.sendMessage(url).queue();
                 };
                 Consumer<Exception> memeErrorConsumer = e -> System.out.println("Error - " + e.getMessage());
+                Matcher commands = findCommands(strMsg);
+                /*
+                for(int i =0; i < commands.groupCount(); ++i){
+                    if (commandTree.has(commands.group(i))){
+                        ;
+                    }
 
+                }
+                */
                 if (strMsg.equals("!ping")) {
                     textChannel.sendMessage("Pong!").queue();
                 }
@@ -81,3 +126,4 @@ public class MessageHandler {
         }
     }
 }
+
