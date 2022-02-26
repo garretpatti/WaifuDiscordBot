@@ -55,7 +55,8 @@ public class App extends ListenerAdapter {
 		}
 
 		JDABuilder builder = JDABuilder.createLight(TOKEN, GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_MESSAGE_REACTIONS);
-		builder.addEventListeners(new App());
+		CommandCenter cmdCntr = CommandCenter.getSingleton();
+		builder.addEventListeners(new App(), cmdCntr);
 		JDA bot;
 		try {
 			bot = builder.build();
@@ -72,6 +73,7 @@ public class App extends ListenerAdapter {
 		reactionMap.put(879891493840617543L, msgRoleMap);
 
 		bot.awaitReady();
+		cmdCntr.registerCommands(bot);
 	}
 
 	@Override
