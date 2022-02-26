@@ -66,7 +66,9 @@ public class App extends ListenerAdapter {
 		}
 
 		Map<Long, Long> msgRoleMap = new HashMap<>();
-		msgRoleMap.put(942656923390590996L, 942646740845232148L);
+		msgRoleMap.put(945152664059121685L, 942646740845232148L);
+		msgRoleMap.put(945153619135709297L, 933660702294552586L);
+		msgRoleMap.put(945154695587041331L, 880713006181404692L);
 		reactionMap.put(879891493840617543L, msgRoleMap);
 
 		bot.awaitReady();
