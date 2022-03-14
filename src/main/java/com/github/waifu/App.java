@@ -41,7 +41,7 @@ public class App extends ListenerAdapter {
 			LOGGER.info("Loading JDA Application token.");
 			String path = App.class.getResource("/secrets.json").getPath();
 			JsonObject secretsTree = JsonParser.parseReader(new FileReader(path)).getAsJsonObject();
-			TOKEN = secretsTree.get("jda-key").getAsString();
+			TOKEN = secretsTree.get("bot-token").getAsString();
 			if (TOKEN.equals("")) { throw new IllegalStateException("Token jda-key value is empty"); }
 			LOGGER.info("JDA Application token retrieved. Logging in now.");
 		}
