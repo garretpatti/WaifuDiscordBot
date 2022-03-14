@@ -1,6 +1,7 @@
 package com.github.waifu;
 
 import com.github.waifu.commands.SlashCommandHandler;
+import com.github.waifu.commands.SlashNh;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
@@ -30,6 +31,7 @@ public class CommandCenter extends ListenerAdapter {
         LOGGER.info("Registering slash commands for WDO");
         // Add a new instance of your command handler here to register it
         List.<SlashCommandHandler>of(
+            new SlashNh()
         ).forEach((t) -> {
             if (t.isGlobal()) {
                 bot.upsertCommand(t.getCommand()).queue(l -> {
