@@ -18,8 +18,6 @@ public abstract class SlashCommandHandler {
 
     public boolean isGlobal() { return true; }
 
-    public List<Long> getGuilds() { return List.of(); }
-
     @Nullable
     public Map<Long, List<CommandPrivilege>> getPrivileges() { return Map.of(); }
 

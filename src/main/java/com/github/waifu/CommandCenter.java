@@ -1,5 +1,7 @@
 package com.github.waifu;
 
+import com.github.waifu.commands.SlashAlex;
+import com.github.waifu.commands.SlashBasicResponse;
 import com.github.waifu.commands.SlashCommandHandler;
 import com.github.waifu.commands.SlashNh;
 import net.dv8tion.jda.api.JDA;
@@ -31,15 +33,18 @@ public class CommandCenter extends ListenerAdapter {
         LOGGER.info("Registering slash commands for WDO");
         // Add a new instance of your command handler here to register it
         List.<SlashCommandHandler>of(
-            new SlashNh()
+            new SlashNh(),
+            new SlashBasicResponse("ping", "Pong!", "Ping test"),
+            new SlashBasicResponse("bing", "Bong!", "Bing bong!"),
+            new SlashAlex()
         ).forEach((t) -> {
             if (t.isGlobal()) {
-                bot.upsertCommand(t.getCommand()).queue(l -> {
+                bot.upsertCommand(t.getCommand()).queue(l ->
                     t.getPrivileges().forEach( (g, p) -> {
                         Guild guild = bot.getGuildById(g);
                         if (guild != null) l.updatePrivileges(guild, p).queue();
-                    });
-                });
+                    })
+                );
             }
             else {
                 t.getPrivileges().forEach( (g, p) -> {
