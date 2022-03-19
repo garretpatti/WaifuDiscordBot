@@ -39,7 +39,8 @@ public class CommandCenter extends ListenerAdapter {
                 new SlashBasicResponse("bing", "Bong!", "Bing bong!"),
                 new SlashAlex(),
                 new SlashBaseTenorSearch("smashing", "Smashing!", "nigel thornberry smashing"),
-                new SlashBaseTenorSearch("cagemebro", "I'm going to steal the Declaration of Independence", "nick cage")
+                new SlashBaseTenorSearch("cagemebro", "I'm going to steal the Declaration of Independence", "nick cage"),
+                new SlashBaseTenorSearch("deuces", "Peace bitches", "deuces")
         ).forEach((t) -> {
             if (t.isGlobal()) {
                 bot.upsertCommand(t.getCommand()).queue(l ->
