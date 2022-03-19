@@ -41,16 +41,16 @@ public class App extends ListenerAdapter {
 			LOGGER.info("Loading JDA Application token.");
 			String path = App.class.getResource("/secrets.json").getPath();
 			JsonObject secretsTree = JsonParser.parseReader(new FileReader(path)).getAsJsonObject();
-			TOKEN = secretsTree.get("jda-key").getAsString();
-			if (TOKEN.equals("")) { throw new IllegalStateException("Token jda-key value is empty"); }
-			LOGGER.info("JDA Application token retrieved. Logging in now.");
+			TOKEN = secretsTree.get("bot_token").getAsString();
+			if (TOKEN.equals("")) { throw new IllegalStateException("Token bot_token value is empty"); }
+			LOGGER.info("JDA Bot token retrieved. Logging in now.");
 		}
 		catch (IOException ioe) {
 			LOGGER.error("There was an error while reading the token file.", ioe);
 			return;
 		}
 		catch (IllegalStateException | NullPointerException e) {
-			LOGGER.error("The secrets file must contain an entry for jda-key", e);
+			LOGGER.error("The secrets file must contain an entry for bot_token", e);
 			return;
 		}
 
