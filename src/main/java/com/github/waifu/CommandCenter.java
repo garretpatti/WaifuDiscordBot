@@ -4,6 +4,7 @@ import com.github.waifu.commands.SlashAlex;
 import com.github.waifu.commands.SlashBasicResponse;
 import com.github.waifu.commands.SlashCommandHandler;
 import com.github.waifu.commands.SlashNh;
+import com.github.waifu.commands.tenor.SlashBaseTenorSearch;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
@@ -32,11 +33,13 @@ public class CommandCenter extends ListenerAdapter {
     public void registerCommands(@Nonnull JDA bot) {
         LOGGER.info("Registering slash commands for WDO");
         // Add a new instance of your command handler here to register it
-        List.<SlashCommandHandler>of(
-            new SlashNh(),
-            new SlashBasicResponse("ping", "Pong!", "Ping test"),
-            new SlashBasicResponse("bing", "Bong!", "Bing bong!"),
-            new SlashAlex()
+        List.of(
+                new SlashNh(),
+                new SlashBasicResponse("ping", "Pong!", "Ping test"),
+                new SlashBasicResponse("bing", "Bong!", "Bing bong!"),
+                new SlashAlex(),
+                new SlashBaseTenorSearch("smashing", "Smashing!", "nigel thornberry smashing"),
+                new SlashBaseTenorSearch("cagemebro", "I'm going to steal the Declaration of Independence", "nick cage")
         ).forEach((t) -> {
             if (t.isGlobal()) {
                 bot.upsertCommand(t.getCommand()).queue(l ->
@@ -50,9 +53,7 @@ public class CommandCenter extends ListenerAdapter {
                 t.getPrivileges().forEach( (g, p) -> {
                     Guild guild = bot.getGuildById(g);
                     if (guild != null) {
-                        guild.upsertCommand(t.getCommand()).queue(l -> {
-                            l.updatePrivileges(guild, p).queue();
-                        });
+                        guild.upsertCommand(t.getCommand()).queue(l -> l.updatePrivileges(guild, p).queue());
                     }
                 });
             }
