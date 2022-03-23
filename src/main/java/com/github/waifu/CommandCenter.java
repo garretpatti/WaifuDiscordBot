@@ -1,9 +1,6 @@
 package com.github.waifu;
 
-import com.github.waifu.commands.SlashAlex;
-import com.github.waifu.commands.SlashBasicResponse;
-import com.github.waifu.commands.SlashCommandHandler;
-import com.github.waifu.commands.SlashNh;
+import com.github.waifu.commands.*;
 import com.github.waifu.commands.tenor.SlashBaseTenorSearch;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
@@ -40,7 +37,8 @@ public class CommandCenter extends ListenerAdapter {
                 new SlashAlex(),
                 new SlashBaseTenorSearch("smashing", "Smashing!", "nigel thornberry smashing"),
                 new SlashBaseTenorSearch("cagemebro", "I'm going to steal the Declaration of Independence", "nick cage"),
-                new SlashBaseTenorSearch("deuces", "Peace bitches", "deuces")
+                new SlashBaseTenorSearch("deuces", "Peace bitches", "deuces"),
+                new SlashPokemon()
         ).forEach((t) -> {
             if (t.isGlobal()) {
                 bot.upsertCommand(t.getCommand()).queue(l ->
