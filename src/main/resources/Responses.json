@@ -1,7 +1,7 @@
 {
     "bang_commands": [
         {
-            "command": "ping",
+            "command": "!ping",
             "channels": "all",
             "handler": "simple",
             "responses": [
@@ -9,7 +9,7 @@
             ]
         },
         {
-            "command": "bing",
+            "command": "!bing",
             "channels": "all",
             "handler": "simple",
             "responses": [
@@ -17,8 +17,5 @@
             ]
         }
 
-    ],
-    "slash_commands": [
-        
     ]
 }

@@ -4,6 +4,7 @@ build/
 .idea/
 target/
 .run/
+.vscode/
 
 *.bat
 
