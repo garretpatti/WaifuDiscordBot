@@ -18,6 +18,17 @@ public class TenorHandler {
 
     /**
      * Get Search Result GIFs
+     * -------------------------
+     * Json format for these commands is as follows:
+     * {
+     *      "command":"commandname",
+     *      "channels": <accepted channels>,    /either "all" or "nsfw"
+     *      "handler":"tenor",
+     *      "searches":[
+     *          "search",
+     *          "terms"
+     *      ]
+     * }
      */
     public static void getSearchResults(String searchTerm,
                                         Consumer<JSONObject> responseHandler,

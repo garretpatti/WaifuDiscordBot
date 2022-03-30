@@ -21,7 +21,7 @@
             "command": "!smashing",
             "channels": "all",
             "handler": "tenor",
-            "inputs": [
+            "searches": [
                 "Nigel Thornberry"
             ]
         },

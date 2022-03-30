@@ -41,9 +41,9 @@ public class ResponseCenter extends ListenerAdapter{
             commandList = commandTree.getAsJsonArray("commands");
             reactionList = commandTree.getAsJsonArray("reactions");
         } catch (FileNotFoundException e) {
-            System.out.println("BangCommands.json was not found.");
+            System.out.println("Responses.json was not found.");
         } catch (Exception e) {
-            System.out.println("Something is likely wrong with the BangCommands.json file.");
+            System.out.println("Something is likely wrong with the Responses.json file.");
             e.printStackTrace();
         }
     }
@@ -69,31 +69,27 @@ public class ResponseCenter extends ListenerAdapter{
 
                 //search the message for commands
                 for (JsonElement command : commandList) {
-                    String commandName = command.getAsJsonObject().get("command").getAsString();
-                    if (command.isJsonObject() && strMsg.contains(commandName)) {
-                        switch (command.getAsJsonObject().get("handler").getAsString().toLowerCase()) {
-                            case "simple":
-                                try {
+                    try {
+                        String commandName = command.getAsJsonObject().get("command").getAsString();
+                        if (command.isJsonObject() && strMsg.contains(commandName)) {
+                            switch (command.getAsJsonObject().get("handler").getAsString().toLowerCase()) {
+                                case "simple":
                                     JsonArray simpleResponses = command.getAsJsonObject().get("response_list").getAsJsonArray();
                                     String acceptedChannel = command.getAsJsonObject().get("channels").getAsString().toLowerCase();
                                     if (acceptedChannel.contentEquals("all") || (textChannel.isNSFW() && acceptedChannel.contentEquals("nsfw")))
                                         SimpleHandler.respond(simpleResponses, textResponseConsumer, memeErrorConsumer);
-                                } catch (Exception e) {
-                                    memeErrorConsumer.accept(e);
-                                }
-                                break;
-                            case "tenor": //currently doesn't accept parameters
-                                try {
-                                    JsonElement tenorInputs = command.getAsJsonObject().get("inputs");
+                                    break;
+                                case "tenor": //currently doesn't accept parameters
+                                    JsonElement tenorInputs = command.getAsJsonObject().get("searches");
                                     TenorHandler.getSearchResults(tenorInputs.getAsJsonArray(), memeResponseConsumer, memeErrorConsumer);
-                                } catch (Exception e) {
-                                    memeErrorConsumer.accept(e);
-                                }
-                                break;
-                            default:
-                                System.out.println("handler not implemented");
+                                    break;
+                                default:
+                                    System.out.println("handler not implemented");
 
+                            }
                         }
+                    } catch (Exception e) {
+                        memeErrorConsumer.accept(e);
                     }
                 }
                 //search the message for reaction keywords
