@@ -1,10 +1,10 @@
 {
-    "bang_commands": [
+    "commands": [
         {
             "command": "!ping",
             "channels": "all",
             "handler": "simple",
-            "responses": [
+            "response_list": [
                 "pong"
             ]
         },
@@ -12,10 +12,36 @@
             "command": "!bing",
             "channels": "all",
             "handler": "simple",
-            "responses": [
-                "bong"
+            "response_list": [
+                "bong",
+                "bang"
+            ]
+        },
+        {
+            "command": "!smashing",
+            "channels": "all",
+            "handler": "tenor",
+            "inputs": [
+                "Nigel Thornberry"
+            ]
+        },
+        {
+            "command": "!cum",
+            "channels": "nsfw",
+            "handler": "simple",
+            "response_list":[
+                "senpai!!!!!"
             ]
         }
 
+    ],
+    "reactions": [
+        {
+            "keyword": "love",
+            "channels": "all",
+            "reaction_list": [
+                "\u2764"
+            ]
+        }
     ]
 }

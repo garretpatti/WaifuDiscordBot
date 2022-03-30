@@ -1,29 +1,21 @@
 package com.github.waifu;
 
-import com.github.waifu.commands.TenorHandler;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.*;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.GatewayIntent;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import java.io.FileReader;
 import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Consumer;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * @author Spitfyre03
@@ -55,8 +47,8 @@ public class App extends ListenerAdapter {
 		}
 
 		JDABuilder builder = JDABuilder.createLight(TOKEN, GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_MESSAGE_REACTIONS);
-		MessageHandler msgHndlr = MessageHandler.getSingleton();
-		builder.addEventListeners(new App(), msgHndlr);
+		ResponseCenter rspCntr = ResponseCenter.getSingleton();
+		builder.addEventListeners(new App(), rspCntr);
 		JDA bot;
 		try {
 			bot = builder.build();
