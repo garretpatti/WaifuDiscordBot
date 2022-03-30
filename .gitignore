@@ -4,5 +4,8 @@ build/
 .idea/
 target/
 .run/
+.vscode/
+
+*.bat
 
 src/main/resources/secrets.json

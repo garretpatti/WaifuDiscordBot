@@ -8,18 +8,47 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.function.Consumer;
+import java.util.Random;
 
+import com.google.gson.JsonArray;
 public class TenorHandler {
 
     private static final String API_KEY = "2WFV9G1IPF7I";
+    private static Random randomGen = new Random();
 
     /**
      * Get Search Result GIFs
+     * -------------------------
+     * Json format for these commands is as follows:
+     * {
+     *      "command":"commandname",
+     *      "channels": <accepted channels>,    /either "all" or "nsfw"
+     *      "handler":"tenor",
+     *      "searches":[
+     *          "search",
+     *          "terms"
+     *      ]
+     * }
      */
     public static void getSearchResults(String searchTerm,
                                         Consumer<JSONObject> responseHandler,
                                         Consumer<Exception> errorHandler) {
         searchTerm = searchTerm.replace(" ", "%20");
+        final String url = String.format("https://g.tenor.com/v1/random?q=%1$s&key=%2$s&limit=1", searchTerm, API_KEY);
+        new Thread(() -> {
+            try {
+                responseHandler.accept(get(url));
+            }
+            catch (Exception e) {
+                errorHandler.accept(e);
+            }
+        }).start();
+    }
+
+    public static void getSearchResults(JsonArray searchTerms,
+                                        Consumer<JSONObject> responseHandler,
+                                        Consumer<Exception> errorHandler) {
+        String searchTerm = searchTerms.get(randomGen.nextInt(searchTerms.size())).getAsString().replace(" ", "%20");
         final String url = String.format("https://g.tenor.com/v1/random?q=%1$s&key=%2$s&limit=1", searchTerm, API_KEY);
         new Thread(() -> {
             try {

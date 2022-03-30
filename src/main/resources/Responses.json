@@ -1,0 +1,47 @@
+{
+    "commands": [
+        {
+            "command": "!ping",
+            "channels": "all",
+            "handler": "simple",
+            "response_list": [
+                "pong"
+            ]
+        },
+        {
+            "command": "!bing",
+            "channels": "all",
+            "handler": "simple",
+            "response_list": [
+                "bong",
+                "bang"
+            ]
+        },
+        {
+            "command": "!smashing",
+            "channels": "all",
+            "handler": "tenor",
+            "searches": [
+                "Nigel Thornberry"
+            ]
+        },
+        {
+            "command": "!cum",
+            "channels": "nsfw",
+            "handler": "simple",
+            "response_list":[
+                "senpai!!!!!"
+            ]
+        }
+
+    ],
+    "reactions": [
+        {
+            "keyword": "love",
+            "channels": "all",
+            "reaction_list": [
+                "\u2764"
+            ]
+        }
+    ]
+}
