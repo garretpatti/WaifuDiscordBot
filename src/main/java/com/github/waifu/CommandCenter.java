@@ -6,7 +6,6 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,6 +13,7 @@ import javax.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public class CommandCenter extends ListenerAdapter {
 
@@ -41,16 +41,20 @@ public class CommandCenter extends ListenerAdapter {
                 new SlashPokemon(),
                 new SlashBasicResponse("kanyon", "bruh", "Bing bong!")
         ).forEach((t) -> {
+            if (Optional.ofNullable(t.getName()).orElse("").trim().equals("")) {
+                LOGGER.warn(String.format("A command of Type %s with no name was provided. It will not be registered.", t.getClass().getSimpleName()));
+                return;
+            }
             if (t.isGlobal()) {
                 bot.upsertCommand(t.getCommand()).queue(l ->
-                    t.getPrivileges().forEach( (g, p) -> {
+                    Optional.ofNullable(t.getPrivileges()).orElse(Map.of()).forEach( (g, p) -> {
                         Guild guild = bot.getGuildById(g);
                         if (guild != null) l.updatePrivileges(guild, p).queue();
                     })
                 );
             }
             else {
-                t.getPrivileges().forEach( (g, p) -> {
+                Optional.ofNullable(t.getPrivileges()).orElse(Map.of()).forEach( (g, p) -> {
                     Guild guild = bot.getGuildById(g);
                     if (guild != null) {
                         guild.upsertCommand(t.getCommand()).queue(l -> l.updatePrivileges(guild, p).queue());
@@ -64,7 +68,7 @@ public class CommandCenter extends ListenerAdapter {
     }
 
     @Override
-    public void onSlashCommand(@NotNull SlashCommandEvent event) {
+    public void onSlashCommand(@Nonnull SlashCommandEvent event) {
         LOGGER.debug("Capturing slash event for command " + event.getName());
         if (event.isFromGuild()) {
             SlashCommandHandler command = commands.get(event.getName());
