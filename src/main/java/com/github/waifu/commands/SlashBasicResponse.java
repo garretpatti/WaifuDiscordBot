@@ -33,10 +33,14 @@ public class SlashBasicResponse extends SlashCommandHandler {
     }
 
     @Override
-    public boolean isGlobal() { return true; }
+    public boolean isGlobal() { return false; }
 
     @Override
-    public Map<Long, List<CommandPrivilege>> getPrivileges() { return Map.of(); }
+    public Map<Long, List<CommandPrivilege>> getPrivileges() {
+        return Map.of(
+            879891493840617543L, List.of()
+        );
+    }
 
     @Override
     public void onCommand(SlashCommandEvent event) {
