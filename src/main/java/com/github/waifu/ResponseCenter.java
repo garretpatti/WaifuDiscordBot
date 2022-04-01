@@ -48,6 +48,13 @@ public class ResponseCenter extends ListenerAdapter{
         }
     }
 
+    private boolean channelAccepted(String allowedChannels, TextChannel textChannel) {
+        if (allowedChannels.contentEquals("all") || 
+        (textChannel.isNSFW() && allowedChannels.contentEquals("nsfw")))
+            return true;
+        else
+            return false;
+    }
 
     @Override
     public void onMessageReceived(@Nonnull MessageReceivedEvent event) {
@@ -75,8 +82,8 @@ public class ResponseCenter extends ListenerAdapter{
                             switch (command.getAsJsonObject().get("handler").getAsString().toLowerCase()) {
                                 case "simple":
                                     JsonArray simpleResponses = command.getAsJsonObject().get("response_list").getAsJsonArray();
-                                    String acceptedChannel = command.getAsJsonObject().get("channels").getAsString().toLowerCase();
-                                    if (acceptedChannel.contentEquals("all") || (textChannel.isNSFW() && acceptedChannel.contentEquals("nsfw")))
+                                    String allowedChannels = command.getAsJsonObject().get("channels").getAsString().toLowerCase();
+                                    if (channelAccepted(allowedChannels, textChannel))
                                         SimpleHandler.respond(simpleResponses, textResponseConsumer, memeErrorConsumer);
                                     break;
                                 case "tenor": //currently doesn't accept parameters
