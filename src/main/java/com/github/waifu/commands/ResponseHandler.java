@@ -13,8 +13,7 @@ import com.google.gson.JsonElement;
 
 public abstract class ResponseHandler {
     protected JsonObject responseObject;
-    protected Consumer<String> messageConsumer;
-    protected Consumer<Exception> errorConsumer;
+
 
     protected String responseKeyword;
     protected ArrayList<String> responseData = new ArrayList<String>();
@@ -25,9 +24,9 @@ public abstract class ResponseHandler {
     protected boolean nsfw;
 
 
-    public abstract void respond(@Nonnull MessageReceivedEvent event);
+    public abstract void respond(@Nonnull MessageReceivedEvent event, Consumer<String> messageConsumer, Consumer<Exception> errorConsumer);
 
-    public void buildResponse() {
+    ResponseHandler(JsonObject responseObject) {
         try {
             if (responseObject.get("keyword") != null) {
                 responseKeyword = responseObject.get("keyword").toString();
@@ -80,7 +79,7 @@ public abstract class ResponseHandler {
             }
 
         } catch (Exception e) {
-            errorConsumer.accept(e);
+            e.printStackTrace();
         }
     }
 
@@ -88,16 +87,10 @@ public abstract class ResponseHandler {
         return responseKeyword;
     }
 
-    public boolean isNSFW() { return nsfw;}
-
-    public boolean isGlobal() { return global;}
-
-    public boolean isChannelAgnostic() { return channelAgnostic;}
-
     protected boolean responseConditionsMet(@Nonnull MessageReceivedEvent event) {
-        if ((acceptedGuilds.contains(event.getGuild().getIdLong()) || global)
-         && (acceptedChannels.contains(event.getChannel().getIdLong()) || channelAgnostic)
-         && (event.getTextChannel().isNSFW() || !nsfw)) {
+        if ((global || acceptedGuilds.contains(event.getGuild().getIdLong()))
+         && (channelAgnostic || acceptedChannels.contains(event.getChannel().getIdLong()))
+         && (!nsfw || event.getTextChannel().isNSFW())) {
             return true;
         }
         else {

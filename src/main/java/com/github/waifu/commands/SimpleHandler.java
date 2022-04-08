@@ -29,15 +29,12 @@ import javax.annotation.Nonnull;
 public class SimpleHandler extends ResponseHandler{
     private static Random randomGen = new Random();
     
-    SimpleHandler(JsonObject responseObject, Consumer<String> messageConsumer, Consumer<Exception> errorConsumer) {
-        this.responseObject = responseObject;
-        this.messageConsumer = messageConsumer;
-        this.errorConsumer = errorConsumer;
-        buildResponse();
+    public SimpleHandler(JsonObject responseObject) {
+        super(responseObject);
     }
 
     @Override
-    public void respond(@Nonnull MessageReceivedEvent event) {
+    public void respond(@Nonnull MessageReceivedEvent event, Consumer<String> messageConsumer, Consumer<Exception> errorConsumer) {
         try {
             if (responseConditionsMet(event)) {
                 String response = responseData.get(randomGen.nextInt(responseData.size()));

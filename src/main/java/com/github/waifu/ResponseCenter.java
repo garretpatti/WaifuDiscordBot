@@ -3,6 +3,7 @@ import com.github.waifu.commands.*;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.util.HashMap;
 import java.util.Random;
 
 import java.util.function.Consumer;
@@ -25,6 +26,7 @@ import com.google.gson.JsonArray;
 public class ResponseCenter extends ListenerAdapter{
     public static final Logger LOGGER = LoggerFactory.getLogger(ResponseCenter.class);
     private static final ResponseCenter singleton = new ResponseCenter();
+    private HashMap<String, ResponseHandler> responseMap = new HashMap<String, ResponseHandler>();
 
     private static Random randomGen = new Random();
 
@@ -35,6 +37,7 @@ public class ResponseCenter extends ListenerAdapter{
 
     private ResponseCenter() {
         loadJSON();
+        buildResponses();
     }
 
     private void loadJSON() {
@@ -42,7 +45,7 @@ public class ResponseCenter extends ListenerAdapter{
         try {
             String path = App.class.getResource("/Responses.json").getPath();
             JsonObject commandTree = JsonParser.parseReader(new FileReader(path)).getAsJsonObject();
-            commandList = commandTree.getAsJsonArray("commands");
+            commandList = commandTree.getAsJsonArray("responses");
             reactionList = commandTree.getAsJsonArray("reactions");
             LOGGER.info("Responses.json loaded");
         } catch (FileNotFoundException e) {
@@ -50,6 +53,24 @@ public class ResponseCenter extends ListenerAdapter{
         } catch (Exception e) {
             LOGGER.warn("Responses.json could not be loaded. Is it formated correctly? Printing stack trace...");
             e.printStackTrace();
+        }
+    }
+
+    private void buildResponses() {
+        for (JsonElement command : commandList) {
+            if (command.isJsonObject()) {
+                switch (command.getAsJsonObject().get("handler").getAsString()) {
+                    case "simple":
+                        responseMap.put(command.getAsJsonObject().get("keyword").getAsString(), new SimpleHandler(command.getAsJsonObject()));
+                        break;
+                
+                    default:
+                        LOGGER.warn(String.format("Handler %s has not been implemented. Skipping %s", 
+                            command.getAsJsonObject().get("handler").getAsString(),
+                            command.getAsJsonObject().get("keyword").getAsString()));
+                        break;
+                }
+            }
         }
     }
 
@@ -73,13 +94,14 @@ public class ResponseCenter extends ListenerAdapter{
                     String url = r.getJSONArray("results").getJSONObject(0).getJSONArray("media").getJSONObject(0).getJSONObject("tinygif").getString("url");
                     textChannel.sendMessage(url).queue();
                 };
-                Consumer<Exception> memeErrorConsumer = e -> System.out.println("Error - " + e.getMessage());
+                Consumer<Exception> errorConsumer = e -> System.out.println("Error - " + e.getMessage());
                 Consumer<String> textResponseConsumer = r -> {
                     if (r != null && r != "")
                         textChannel.sendMessage(r).queue();
                 };
 
                 //search the message for commands
+                /*
                 for (JsonElement command : commandList) {
                     try {
                         String commandName = command.getAsJsonObject().get("command").getAsString();
@@ -105,6 +127,12 @@ public class ResponseCenter extends ListenerAdapter{
                         memeErrorConsumer.accept(e);
                     }
                 }
+                */
+                for (String mapKey : responseMap.keySet()) {
+                    if (strMsg.contains(mapKey)) {
+                        responseMap.get(mapKey).respond(event, textResponseConsumer, errorConsumer);
+                    }
+                }
                 //search the message for reaction keywords
                 for (JsonElement reaction : reactionList) {
                     try {
@@ -116,7 +144,7 @@ public class ResponseCenter extends ListenerAdapter{
                             msg.addReaction(selectedReaction).queue();
                         }
                     } catch (Exception e) {
-                        memeErrorConsumer.accept(e);
+                        errorConsumer.accept(e);
                     }
 
                 }
