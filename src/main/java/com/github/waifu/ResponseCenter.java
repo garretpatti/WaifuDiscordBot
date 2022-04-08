@@ -7,6 +7,8 @@ import java.util.Random;
 
 import java.util.function.Consumer;
 import javax.annotation.Nonnull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -21,9 +23,10 @@ import com.github.waifu.commands.tenor.TenorHandler;
 import com.google.gson.JsonArray;
 
 public class ResponseCenter extends ListenerAdapter{
+    public static final Logger LOGGER = LoggerFactory.getLogger(ResponseCenter.class);
     private static final ResponseCenter singleton = new ResponseCenter();
-    private static Random randomGen = new Random();
 
+    private static Random randomGen = new Random();
 
     private static JsonArray commandList;
     private static JsonArray reactionList;
@@ -35,15 +38,17 @@ public class ResponseCenter extends ListenerAdapter{
     }
 
     private void loadJSON() {
+        LOGGER.info("Loading Responses.json");
         try {
             String path = App.class.getResource("/Responses.json").getPath();
             JsonObject commandTree = JsonParser.parseReader(new FileReader(path)).getAsJsonObject();
             commandList = commandTree.getAsJsonArray("commands");
             reactionList = commandTree.getAsJsonArray("reactions");
+            LOGGER.info("Responses.json loaded");
         } catch (FileNotFoundException e) {
-            System.out.println("Responses.json was not found.");
+            LOGGER.warn("Responses.json was not found.");
         } catch (Exception e) {
-            System.out.println("Something is likely wrong with the Responses.json file.");
+            LOGGER.warn("Responses.json could not be loaded. Is it formated correctly? Printing stack trace...");
             e.printStackTrace();
         }
     }
@@ -79,7 +84,8 @@ public class ResponseCenter extends ListenerAdapter{
                     try {
                         String commandName = command.getAsJsonObject().get("command").getAsString();
                         if (command.isJsonObject() && strMsg.contains(commandName)) {
-                            switch (command.getAsJsonObject().get("handler").getAsString().toLowerCase()) {
+                            String handlerName = command.getAsJsonObject().get("handler").getAsString().toLowerCase();
+                            switch (handlerName) {
                                 case "simple":
                                     JsonArray simpleResponses = command.getAsJsonObject().get("response_list").getAsJsonArray();
                                     String allowedChannels = command.getAsJsonObject().get("channels").getAsString().toLowerCase();
@@ -91,7 +97,7 @@ public class ResponseCenter extends ListenerAdapter{
                                     TenorHandler.getSearchResults(tenorInputs.getAsJsonArray(), memeResponseConsumer, memeErrorConsumer);
                                     break;
                                 default:
-                                    System.out.println("handler not implemented");
+                                    LOGGER.warn(String.format("Command %s calls for handler %s. Which does not exist", commandName, handlerName));
 
                             }
                         }
