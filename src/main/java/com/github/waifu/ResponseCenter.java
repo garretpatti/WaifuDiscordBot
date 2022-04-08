@@ -103,8 +103,8 @@ public class ResponseCenter extends ListenerAdapter{
                 for (JsonElement reaction : reactionList) {
                     try {
                         String reactionKW = reaction.getAsJsonObject().get("keyword").getAsString().toLowerCase();
-                        String acceptedChannel = reaction.getAsJsonObject().get("channels").getAsString().toLowerCase();
-                        if(strMsg.contains(reactionKW) && (acceptedChannel.contentEquals("all") || (textChannel.isNSFW() && acceptedChannel.contentEquals("nsfw")))) {
+                        String allowedChannels = reaction.getAsJsonObject().get("channels").getAsString().toLowerCase();
+                        if(strMsg.contains(reactionKW) && (channelAccepted(allowedChannels, textChannel))) {
                             JsonArray possibleReactions = reaction.getAsJsonObject().get("reaction_list").getAsJsonArray();
                             String selectedReaction = possibleReactions.get(randomGen.nextInt(possibleReactions.size())).getAsString();
                             msg.addReaction(selectedReaction).queue();
