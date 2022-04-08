@@ -17,7 +17,7 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-import com.github.waifu.commands.TenorHandler;
+import com.github.waifu.commands.tenor.TenorHandler;
 import com.google.gson.JsonArray;
 
 public class ResponseCenter extends ListenerAdapter{
