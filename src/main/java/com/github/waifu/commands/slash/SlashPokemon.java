@@ -1,4 +1,4 @@
-package com.github.waifu.commands;
+package com.github.waifu.commands.slash;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;

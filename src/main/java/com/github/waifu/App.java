@@ -1,6 +1,7 @@
 package com.github.waifu;
 
 import com.github.waifu.chat.ResponseCenter;
+import com.github.waifu.commands.slash.CommandCenter;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import net.dv8tion.jda.api.JDA;
@@ -25,9 +26,14 @@ public class App extends ListenerAdapter {
 
 	public static String TOKEN;
 	public static final Logger LOGGER = LoggerFactory.getLogger(App.class);
+	private static final App singleton = new App();
 
 	// Guild, Message, Role
 	public static final Map<Long, Map<Long, Long>> reactionMap = new HashMap<>();
+
+	private App() {}
+
+	public App getSingleton() { return singleton; }
 
 	public static void main(String[] args) throws InterruptedException {
 		try {
@@ -50,7 +56,7 @@ public class App extends ListenerAdapter {
 		JDABuilder builder = JDABuilder.createLight(TOKEN, GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_MESSAGE_REACTIONS);
 		CommandCenter cmdCntr = CommandCenter.getSingleton();
 		ResponseCenter rspCntr = ResponseCenter.getSingleton();
-		builder.addEventListeners(new App(), rspCntr, cmdCntr);
+		builder.addEventListeners(singleton, rspCntr, cmdCntr);
 		JDA bot;
 		try {
 			bot = builder.build();

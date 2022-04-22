@@ -1,4 +1,4 @@
-package com.github.waifu.commands.tenor;
+package com.github.waifu.commands.slash;
 
 import com.github.waifu.commands.SlashCommandHandler;
 import com.github.waifu.http.helpers.TenorHandler;

@@ -1,5 +1,6 @@
-package com.github.waifu.commands;
+package com.github.waifu.commands.slash;
 
+import com.github.waifu.commands.slash.SlashCommandHandler;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.privileges.CommandPrivilege;

@@ -1,7 +1,5 @@
-package com.github.waifu;
+package com.github.waifu.commands.slash;
 
-import com.github.waifu.commands.*;
-import com.github.waifu.commands.tenor.SlashBaseTenorSearch;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
