@@ -3,6 +3,7 @@ package com.github.waifu.commands.slash;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +38,8 @@ public class CommandCenter extends ListenerAdapter {
                 new SlashBaseTenorSearch("deuces", "Peace bitches", "deuces"),
                 new SlashPokemon(),
                 new SlashBasicResponse("kanyon", "bruh", "Bing bong!"),
-                new SlashMagic8()
+                new SlashMagic8(),
+                new SlashEmote()
         ).forEach((t) -> {
             if (Optional.ofNullable(t.getName()).orElse("").trim().equals("")) {
                 LOGGER.warn(String.format("A command of Type %s with no name was provided. It will not be registered.", t.getClass().getSimpleName()));
@@ -71,6 +73,17 @@ public class CommandCenter extends ListenerAdapter {
         if (event.isFromGuild()) {
             SlashCommandHandler command = commands.get(event.getName());
             if (command != null) command.onCommand(event);
+        }
+    }
+
+    @Override
+    public void onButtonInteraction(ButtonInteractionEvent event) {
+        String name = event.getComponentId();
+        if (name.equals("emote-add-approve") || name.equals("emote-add-deny")) {
+            SlashCommandHandler emote = commands.get("emote");
+            if (emote instanceof SlashEmote e) {
+                e.onInteract(event);
+            }
         }
     }
 }
