@@ -32,12 +32,12 @@ public class CommandCenter extends ListenerAdapter {
                 new SlashNh(),
                 new SlashBasicResponse("ping", "Pong!", "Ping test"),
                 new SlashBasicResponse("bing", "Bong!", "Bing bong!"),
-                new SlashAlex(),
                 new SlashBaseTenorSearch("smashing", "Smashing!", "nigel thornberry smashing"),
                 new SlashBaseTenorSearch("cagemebro", "I'm going to steal the Declaration of Independence", "nick cage"),
                 new SlashBaseTenorSearch("deuces", "Peace bitches", "deuces"),
                 new SlashPokemon(),
-                new SlashBasicResponse("kanyon", "bruh", "Bing bong!")
+                new SlashBasicResponse("kanyon", "bruh", "Bing bong!"),
+                new SlashMagic8()
         ).forEach((t) -> {
             if (Optional.ofNullable(t.getName()).orElse("").trim().equals("")) {
                 LOGGER.warn(String.format("A command of Type %s with no name was provided. It will not be registered.", t.getClass().getSimpleName()));
