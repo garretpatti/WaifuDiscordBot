@@ -1,18 +1,15 @@
 package com.github.waifu.commands.slash;
 
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.privileges.CommandPrivilege;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Map;
 
 public class SlashBasicResponse extends SlashCommandHandler {
-
-    private final Logger LOGGER = LoggerFactory.getLogger(SlashBasicResponse.class);
 
     private final String command;
     private final String response;
@@ -29,7 +26,7 @@ public class SlashBasicResponse extends SlashCommandHandler {
     @Nonnull
     @Override
     public CommandData getCommand() {
-        return new CommandData(this.getName(), this.description);
+        return Commands.slash(this.getName(), this.description);
     }
 
     @Override
@@ -43,7 +40,7 @@ public class SlashBasicResponse extends SlashCommandHandler {
     }
 
     @Override
-    public void onCommand(SlashCommandEvent event) {
+    public void onCommand(SlashCommandInteractionEvent event) {
         event.reply(this.response).queue();
     }
 }

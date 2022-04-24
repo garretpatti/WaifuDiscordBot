@@ -1,9 +1,9 @@
 package com.github.waifu.commands.slash;
 
-import com.github.waifu.commands.SlashCommandHandler;
 import com.github.waifu.http.helpers.TenorHandler;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.privileges.CommandPrivilege;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -33,14 +33,14 @@ public class SlashBaseTenorSearch extends SlashCommandHandler {
     public String getName() { return this.name; }
 
     @Nonnull
-    public CommandData getCommand() {return new CommandData(this.name, this.description); }
+    public CommandData getCommand() { return Commands.slash(this.name, this.description); }
 
     public boolean isGlobal() { return false; }
 
     @Nullable
     public Map<Long, List<CommandPrivilege>> getPrivileges() { return Map.of(879891493840617543L, List.of()); }
 
-    public void onCommand(SlashCommandEvent event) {
+    public void onCommand(SlashCommandInteractionEvent event) {
         event.deferReply().queue();
         Consumer<Exception> error = e -> {
                 LOGGER.error("An error was thrown while retrieving a gif from Tenor.", e);

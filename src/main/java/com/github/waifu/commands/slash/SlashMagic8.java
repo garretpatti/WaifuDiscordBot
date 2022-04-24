@@ -1,8 +1,9 @@
 package com.github.waifu.commands.slash;
 
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.privileges.CommandPrivilege;
 import org.jetbrains.annotations.NotNull;
 
@@ -51,7 +52,7 @@ public class SlashMagic8 extends SlashCommandHandler {
     @NotNull
     @Override
     public CommandData getCommand() {
-        return new CommandData(this.getName(), "Peer into the depths of your destiny.")
+        return Commands.slash(this.getName(), "Peer into the depths of your destiny.")
                 .addOption(OptionType.STRING, "inquiry", "What do you want to ask", true);
     }
 
@@ -66,7 +67,7 @@ public class SlashMagic8 extends SlashCommandHandler {
     }
 
     @Override
-    public void onCommand(SlashCommandEvent event) {
+    public void onCommand(SlashCommandInteractionEvent event) {
         event.reply(answers.get((int)(Math.random() * answers.size()))).queue();
     }
 }

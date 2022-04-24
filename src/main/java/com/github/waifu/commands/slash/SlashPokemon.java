@@ -2,10 +2,11 @@ package com.github.waifu.commands.slash;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.privileges.CommandPrivilege;
 import org.apache.commons.collections4.IteratorUtils;
 import org.json.JSONException;
@@ -19,7 +20,8 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.StreamSupport;
 
 public class SlashPokemon extends SlashCommandHandler {
@@ -30,7 +32,7 @@ public class SlashPokemon extends SlashCommandHandler {
 
     @Nonnull
     public CommandData getCommand() {
-        return new CommandData(this.getName(), "Who's that Pokemon?")
+        return Commands.slash(this.getName(), "Who's that Pokemon?")
             .addOption(OptionType.STRING, "get", "Get a specific pokemon by name or number", false);
     }
 
@@ -43,7 +45,7 @@ public class SlashPokemon extends SlashCommandHandler {
         );
     }
 
-    public void onCommand(SlashCommandEvent event) {
+    public void onCommand(SlashCommandInteractionEvent event) {
         event.deferReply().queue();
         new Thread(() -> {
             OptionMapping option = event.getOption("get");
@@ -99,7 +101,7 @@ public class SlashPokemon extends SlashCommandHandler {
                             break;
                         }
                     }
-                    String desc = "";
+                    String desc;
                     List<Object> descList = IteratorUtils.toList(StreamSupport.stream(speciesData.getJSONArray("flavor_text_entries").spliterator(), true).filter(
                         obj -> {
                             JSONObject entry = (JSONObject) obj;

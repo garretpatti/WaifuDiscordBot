@@ -1,6 +1,6 @@
 package com.github.waifu.commands.slash;
 
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.privileges.CommandPrivilege;
 
@@ -21,5 +21,5 @@ public abstract class SlashCommandHandler {
     @Nullable
     public Map<Long, List<CommandPrivilege>> getPrivileges() { return Map.of(); }
 
-    public abstract void onCommand(SlashCommandEvent event);
+    public abstract void onCommand(SlashCommandInteractionEvent event);
 }

@@ -1,9 +1,10 @@
 package com.github.waifu.commands.slash;
 
 import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.commands.privileges.CommandPrivilege;
 import org.slf4j.Logger;
@@ -27,7 +28,7 @@ public class SlashNh extends SlashCommandHandler {
     @Nonnull
     @Override
     public CommandData getCommand() {
-        return new CommandData(this.getName(), "Get the quicklink for an nh extension.")
+        return Commands.slash(this.getName(), "Get the quicklink for an nh extension.")
             .setDefaultEnabled(false)
             .addOptions(
                 new OptionData(OptionType.INTEGER, "extension", "The extension to get")
@@ -49,7 +50,7 @@ public class SlashNh extends SlashCommandHandler {
     }
 
     @Override
-    public void onCommand(SlashCommandEvent event) {
+    public void onCommand(SlashCommandInteractionEvent event) {
         LOGGER.debug("Replying to nh command.");
         TextChannel ch = (TextChannel) event.getChannel();
         if (ch.isNSFW()) {

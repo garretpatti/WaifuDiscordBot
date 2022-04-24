@@ -7,7 +7,7 @@ import com.google.gson.JsonParser;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.*;
-import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent;
+import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import org.slf4j.Logger;
@@ -77,19 +77,21 @@ public class App extends ListenerAdapter {
 	}
 
 	@Override
-	public void onGuildMessageReactionAdd(@Nonnull GuildMessageReactionAddEvent event) {
-		Map<Long, Long> msgRoleMap;
-		Guild server = event.getGuild();
-		msgRoleMap = reactionMap.get(server.getIdLong());
-		if (msgRoleMap != null) {
-			Long roleLong = msgRoleMap.get(event.getMessageIdLong());
-			if (roleLong != null) {
-				Role role = server.getRoleById(roleLong);
-				if (role != null) {
-					event.retrieveMember().queue(member -> server.addRoleToMember(member, role).queue());
+	public void onMessageReactionAdd(@Nonnull MessageReactionAddEvent event) {
+		if (event.isFromGuild()) {
+			Guild server = event.getGuild();
+			Map<Long, Long> msgRoleMap;
+			msgRoleMap = reactionMap.get(server.getIdLong());
+			if (msgRoleMap != null) {
+				Long roleLong = msgRoleMap.get(event.getMessageIdLong());
+				if (roleLong != null) {
+					Role role = server.getRoleById(roleLong);
+					if (role != null) {
+						event.retrieveMember().queue(member -> server.addRoleToMember(member, role).queue());
+					}
 				}
 			}
+			// else no react-for-role maps set up for this server
 		}
-		// else no react-for-role maps set up for this server
 	}
 }
