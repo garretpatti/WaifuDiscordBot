@@ -20,6 +20,7 @@ public class CommandCenter extends ListenerAdapter {
     private static final CommandCenter singleton = new CommandCenter();
 
     private final Map<String, SlashCommandHandler> commands = new HashMap<>();
+    private final Map<String, IButtonInteraction> buttonHandlers = new HashMap<>();
 
     private CommandCenter() {}
 
@@ -63,6 +64,14 @@ public class CommandCenter extends ListenerAdapter {
             }
             LOGGER.info(String.format("Finished registering command %s", t.getName()));
             commands.put(t.getName(), t);
+            if (t instanceof IButtonInteraction handler) {
+                handler.getButtons().forEach(b -> {
+                    LOGGER.info(String.format("Registering button handler %s for command %s",
+                            b.getId(),
+                            t.getName()));
+                    buttonHandlers.put(b.getId(), handler);
+                });
+            }
         });
         LOGGER.info("Slash commands finished registering.");
     }
@@ -70,20 +79,24 @@ public class CommandCenter extends ListenerAdapter {
     @Override
     public void onSlashCommandInteraction(@Nonnull SlashCommandInteractionEvent event) {
         LOGGER.debug("Capturing slash event for command " + event.getName());
-        if (event.isFromGuild()) {
-            SlashCommandHandler command = commands.get(event.getName());
+        SlashCommandHandler command = commands.get(event.getName());
+        try {
             if (command != null) command.onCommand(event);
+        }
+        catch (Exception e) {
+            LOGGER.error("An uncaught exception was thrown while processing a slash command.", e);
         }
     }
 
     @Override
     public void onButtonInteraction(ButtonInteractionEvent event) {
-        String name = event.getComponentId();
-        if (name.equals("emote-add-approve") || name.equals("emote-add-deny")) {
-            SlashCommandHandler emote = commands.get("emote");
-            if (emote instanceof SlashEmote e) {
-                e.onInteract(event);
-            }
+        LOGGER.debug("Capturing button interaction event for button " + event.getComponentId());
+        IButtonInteraction handler = buttonHandlers.get(event.getComponentId());
+        try {
+            if (handler != null) handler.onInteract(event);
+        }
+        catch (Exception e) {
+            LOGGER.error("An uncaught exception was thrown while processing a button interaction.", e);
         }
     }
 }

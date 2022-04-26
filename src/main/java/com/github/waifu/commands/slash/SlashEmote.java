@@ -25,6 +25,8 @@ import java.util.Map;
 public class SlashEmote extends SlashCommandHandler implements IButtonInteraction {
 
     public static final Logger LOGGER = LoggerFactory.getLogger(SlashEmote.class);
+    private static final Button APPROVE = Button.success("emote-add-approve", "Approve");
+    private static final Button DENY = Button.danger("emote-add-deny", "Deny");
 
     @Override
     public String getName() { return "emote"; }
@@ -33,11 +35,11 @@ public class SlashEmote extends SlashCommandHandler implements IButtonInteractio
     @Override
     public CommandData getCommand() {
         return Commands.slash(this.getName(), "Emote manager")
-                .addSubcommands(
-                        new SubcommandData("add", "Add an emote")
-                                .addOption(OptionType.STRING, "alias", "The name for the new emote", true)
-                                .addOption(OptionType.ATTACHMENT, "emote", "The emote to add", true)
-                );
+            .addSubcommands(
+                new SubcommandData("add", "Add an emote")
+                    .addOption(OptionType.STRING, "alias", "The name for the new emote", true)
+                    .addOption(OptionType.ATTACHMENT, "emote", "The emote to add", true)
+            );
     }
 
     @Override
@@ -57,26 +59,31 @@ public class SlashEmote extends SlashCommandHandler implements IButtonInteractio
             String name = event.getOption("alias", "", OptionMapping::getAsString).toLowerCase();
             if (!name.equals("")) {
                 event.getGuild().retrieveEmotes().queue(l -> {
+                    // TODO check Guild for emote limit and availability
                     if (l.stream().anyMatch(e -> e != null && e.getName().equalsIgnoreCase(name))) {
                         event.getHook().sendMessage("An emote already exists by this name. Please choose another alias.").queue();
                     } else {
                         event.getOption("emote", OptionMapping::getAsAttachment).downloadToFile().thenAcceptAsync(f -> {
-                            if (event.getMember().hasPermission(Permission.MANAGE_EMOTES_AND_STICKERS)) {
-                                try {
+                            try {
+                                if (f.length() > 262144) {
+                                    event.getHook().sendMessage("The submitted file is too large for an emote. The maximum size is 256.0 kb.").queue();
+                                }
+                                else if (event.getMember().hasPermission(Permission.MANAGE_EMOTES_AND_STICKERS)) {
                                     event.getGuild().createEmote(name, Icon.from(f)).queue(e -> {
                                         event.getHook().editOriginal(new MessageBuilder()
-                                                .setContent("Emote successfully created: " + e.getAsMention()).build()).queue();
+                                            .setContent("Emote successfully created: " + e.getAsMention()).build()).queue();
                                     });
-                                } catch (IOException ioe) {
-                                    LOGGER.error("An error occurred while creating Icon for an emote file.", ioe);
-                                }
-                            } else {
-                                event.getHook()
+                                } else {
+                                    event.getHook()
                                         .sendFile(f)
                                         .setContent(String.format("Pending moderator approval: %s", name))
                                         .addActionRow(this.getButtons()).queue();
+                                }
+                            } catch (IOException ioe) {
+                                LOGGER.error("An I/O error occurred while handling the attachment.", ioe);
+                            } finally {
+                                f.delete();
                             }
-                            f.delete();
                         });
                     }
                 });
@@ -86,8 +93,7 @@ public class SlashEmote extends SlashCommandHandler implements IButtonInteractio
 
     @Override
     public List<Button> getButtons() {
-        return List.of(Button.success("emote-add-approve", "Approve"),
-                Button.danger("emote-add-deny", "Deny"));
+        return List.of(APPROVE, DENY);
     }
 
     @Override
@@ -97,7 +103,7 @@ public class SlashEmote extends SlashCommandHandler implements IButtonInteractio
             Member member = event.getMember();
             if (member != null && member.hasPermission(Permission.MANAGE_EMOTES_AND_STICKERS)) {
                 String id = event.getComponentId();
-                if (id.equals("emote-add-approve")) {
+                if (id.equals(APPROVE.getId())) {
                     event.deferEdit().queue();
                     String msg = event.getMessage().getContentDisplay();
                     String name = msg.substring(msg.indexOf(":") + 2);
@@ -105,16 +111,15 @@ public class SlashEmote extends SlashCommandHandler implements IButtonInteractio
                         try {
                             event.getGuild().createEmote(name, Icon.from(f)).queue(e -> {
                                 event.getHook().editOriginalComponents(List.of()).queue();
-                                event.getHook().editOriginal(new MessageBuilder()
-                                        .setContent("Request was approved: " + e.getAsMention()).build()
-                                ).queue();
+                                event.getHook().editOriginal("Request was approved: " + e.getAsMention()).queue();
                             });
                         } catch (IOException ioe) {
                             LOGGER.error("An error occurred while creating Icon for an emote file.", ioe);
+                        } finally {
+                            f.delete();
                         }
-                        f.delete();
                     });
-                } else if (id.equals("emote-add-deny")) {
+                } else if (id.equals(DENY.getId())) {
                     event.deferEdit().queue();
                     event.getHook().editOriginalComponents(List.of()).queue();
                     event.getHook().editOriginal("Request was denied").queue();
