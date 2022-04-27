@@ -2,6 +2,7 @@ package com.github.waifu.chat;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Random;
 
@@ -26,7 +27,7 @@ import com.google.gson.JsonArray;
 public class ResponseCenter extends ListenerAdapter{
     public static final Logger LOGGER = LoggerFactory.getLogger(ResponseCenter.class);
     private static final ResponseCenter singleton = new ResponseCenter();
-    private HashMap<String, ResponseHandler> responseMap = new HashMap<String, ResponseHandler>();
+    private final HashMap<String, ResponseHandler> responseMap = new HashMap<>();
 
     private static Random randomGen = new Random();
 
@@ -36,24 +37,29 @@ public class ResponseCenter extends ListenerAdapter{
     public static ResponseCenter getSingleton() { return singleton; }
 
     private ResponseCenter() {
-        loadJSON();
-        buildResponses();
+        if (loadJSON()) {
+            buildResponses();
+        }
     }
 
-    private void loadJSON() {
+    private boolean loadJSON() {
         LOGGER.info("Loading Responses.json");
         try {
-            String path = App.class.getResource("/Responses.json").getPath();
-            JsonObject commandTree = JsonParser.parseReader(new FileReader(path)).getAsJsonObject();
-            commandList = commandTree.getAsJsonArray("responses");
-            reactionList = commandTree.getAsJsonArray("reactions");
-            LOGGER.info("Responses.json loaded");
-        } catch (FileNotFoundException e) {
-            LOGGER.warn("Responses.json was not found.");
-        } catch (Exception e) {
-            LOGGER.warn("Responses.json could not be loaded. Is it formated correctly? Printing stack trace...");
-            e.printStackTrace();
+            URL url = App.class.getResource("/Responses.json");
+            if (url != null) {
+                String path = url.getPath();
+                JsonObject commandTree = JsonParser.parseReader(new FileReader(path)).getAsJsonObject();
+                commandList = commandTree.getAsJsonArray("responses");
+                reactionList = commandTree.getAsJsonArray("reactions");
+                LOGGER.info("Responses.json loaded");
+                return true;
+            }
         }
+        catch (FileNotFoundException ignored) {}
+        catch (Exception e) {
+            LOGGER.warn("Responses.json could not be loaded. Is it formatted correctly?", e);
+        }
+        return false;
     }
 
     private void buildResponses() {
@@ -65,7 +71,7 @@ public class ResponseCenter extends ListenerAdapter{
                         break;
                 
                     default:
-                        LOGGER.warn(String.format("Handler %s has not been implemented. Skipping %s", 
+                        LOGGER.warn(String.format("Handler type %s has not been implemented. Skipping %s",
                             command.getAsJsonObject().get("handler").getAsString(),
                             command.getAsJsonObject().get("keyword").getAsString()));
                         break;
@@ -75,15 +81,15 @@ public class ResponseCenter extends ListenerAdapter{
     }
 
     private boolean channelAccepted(String allowedChannels, TextChannel textChannel) {
-        if (allowedChannels.contentEquals("all") || 
-        (textChannel.isNSFW() && allowedChannels.contentEquals("nsfw")))
-            return true;
-        else
-            return false;
+        return allowedChannels.contentEquals("all") ||
+            (textChannel.isNSFW() && allowedChannels.contentEquals("nsfw"));
     }
 
     @Override
     public void onMessageReceived(@Nonnull MessageReceivedEvent event) {
+        if (event.getAuthor().isBot()) {
+            return;
+        }
         Message msg = event.getMessage();
         MessageChannel channel = event.getChannel();
         if (channel.getType().equals(ChannelType.TEXT)) {
@@ -96,7 +102,7 @@ public class ResponseCenter extends ListenerAdapter{
                 };
                 Consumer<Exception> errorConsumer = e -> System.out.println("Error - " + e.getMessage());
                 Consumer<String> textResponseConsumer = r -> {
-                    if (r != null && r != "")
+                    if (r != null && !r.equals(""))
                         textChannel.sendMessage(r).queue();
                 };
 

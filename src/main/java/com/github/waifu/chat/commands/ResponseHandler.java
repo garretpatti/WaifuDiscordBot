@@ -14,15 +14,13 @@ import com.google.gson.JsonElement;
 public abstract class ResponseHandler {
     protected JsonObject responseObject;
 
-
     protected String responseKeyword;
-    protected ArrayList<String> responseData = new ArrayList<String>();
-    protected ArrayList<Long> acceptedChannels = new ArrayList<Long>();
-    protected ArrayList<Long> acceptedGuilds = new ArrayList<Long>();
+    protected ArrayList<String> responseData = new ArrayList<>();
+    protected ArrayList<Long> acceptedChannels = new ArrayList<>();
+    protected ArrayList<Long> acceptedGuilds = new ArrayList<>();
     protected boolean global;
     protected boolean channelAgnostic;
     protected boolean nsfw;
-
 
     public abstract void respond(@Nonnull MessageReceivedEvent event, Consumer<String> messageConsumer, Consumer<Exception> errorConsumer);
 
@@ -77,7 +75,6 @@ public abstract class ResponseHandler {
             else {
                 global = true;
             }
-
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -88,13 +85,8 @@ public abstract class ResponseHandler {
     }
 
     protected boolean responseConditionsMet(@Nonnull MessageReceivedEvent event) {
-        if ((global || acceptedGuilds.contains(event.getGuild().getIdLong()))
-         && (channelAgnostic || acceptedChannels.contains(event.getChannel().getIdLong()))
-         && (!nsfw || event.getTextChannel().isNSFW())) {
-            return true;
-        }
-        else {
-            return false;
-        }
+        return (global || acceptedGuilds.contains(event.getGuild().getIdLong()))
+            && (channelAgnostic || acceptedChannels.contains(event.getChannel().getIdLong()))
+            && (!nsfw || event.getTextChannel().isNSFW());
     }
 }

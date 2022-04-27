@@ -8,7 +8,8 @@ import java.util.Random;
 import java.util.function.Consumer;
 
 import javax.annotation.Nonnull;
-/*
+
+/**
     Handler for Simple Commands that respond with a random entry from a list
     ------------------------------------------------------------------------
     The Json format for these commands is as follows:
@@ -23,12 +24,9 @@ import javax.annotation.Nonnull;
         ]
     }
 */
-
-
-
 public class SimpleHandler extends ResponseHandler{
     private static Random randomGen = new Random();
-    
+
     public SimpleHandler(JsonObject responseObject) {
         super(responseObject);
     }

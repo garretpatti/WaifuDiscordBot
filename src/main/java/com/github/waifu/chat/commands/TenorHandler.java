@@ -11,6 +11,7 @@ import java.util.function.Consumer;
 import java.util.Random;
 
 import com.google.gson.JsonArray;
+
 public class TenorHandler {
 
     private static final String API_KEY = "2WFV9G1IPF7I";
