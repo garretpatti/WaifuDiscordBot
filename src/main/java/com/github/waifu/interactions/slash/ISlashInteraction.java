@@ -1,4 +1,4 @@
-package com.github.waifu.commands.slash;
+package com.github.waifu.interactions.slash;
 
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
@@ -9,7 +9,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 
-public interface ISlashHandler {
+public interface ISlashInteraction {
     @Nonnull
     String getName();
 

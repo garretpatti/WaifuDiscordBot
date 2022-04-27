@@ -1,5 +1,6 @@
-package com.github.waifu.commands.slash;
+package com.github.waifu.interactions.slash;
 
+import com.github.waifu.interactions.buttons.IButtonInteraction;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
@@ -22,7 +23,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-public class SlashEmote implements ISlashHandler, IButtonInteraction {
+public class SlashEmote implements ISlashInteraction, IButtonInteraction {
 
     public static final Logger LOGGER = LoggerFactory.getLogger(SlashEmote.class);
     private static final Button APPROVE = Button.success("emote-add-approve", "Approve");

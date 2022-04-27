@@ -1,4 +1,4 @@
-package com.github.waifu.commands.slash;
+package com.github.waifu.interactions.buttons;
 
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;

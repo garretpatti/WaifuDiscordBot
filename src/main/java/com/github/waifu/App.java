@@ -1,7 +1,7 @@
 package com.github.waifu;
 
 import com.github.waifu.chat.ResponseCenter;
-import com.github.waifu.commands.slash.CommandCenter;
+import com.github.waifu.interactions.InteractionCenter;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import net.dv8tion.jda.api.JDA;
@@ -54,7 +54,7 @@ public class App extends ListenerAdapter {
 		}
 
 		JDABuilder builder = JDABuilder.createLight(TOKEN, GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_MESSAGE_REACTIONS);
-		CommandCenter cmdCntr = CommandCenter.getSingleton();
+		InteractionCenter cmdCntr = InteractionCenter.getSingleton();
 		ResponseCenter rspCntr = ResponseCenter.getSingleton();
 		builder.addEventListeners(singleton, rspCntr, cmdCntr);
 		JDA bot;

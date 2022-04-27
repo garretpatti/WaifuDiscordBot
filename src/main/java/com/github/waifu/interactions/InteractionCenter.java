@@ -1,5 +1,7 @@
-package com.github.waifu.commands.slash;
+package com.github.waifu.interactions;
 
+import com.github.waifu.interactions.buttons.IButtonInteraction;
+import com.github.waifu.interactions.slash.*;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -14,17 +16,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-public class CommandCenter extends ListenerAdapter {
+public class InteractionCenter extends ListenerAdapter {
 
-    public static final Logger LOGGER = LoggerFactory.getLogger(CommandCenter.class);
-    private static final CommandCenter singleton = new CommandCenter();
+    public static final Logger LOGGER = LoggerFactory.getLogger(InteractionCenter.class);
+    private static final InteractionCenter singleton = new InteractionCenter();
 
-    private final Map<String, ISlashHandler> slashHandlers = new HashMap<>();
+    private final Map<String, ISlashInteraction> slashHandlers = new HashMap<>();
     private final Map<String, IButtonInteraction> buttonHandlers = new HashMap<>();
 
-    private CommandCenter() {}
+    private InteractionCenter() {}
 
-    public static CommandCenter getSingleton() { return singleton; }
+    public static InteractionCenter getSingleton() { return singleton; }
 
     // should be called after bot starts up
     public void registerCommands(@Nonnull JDA bot) {
@@ -85,7 +87,7 @@ public class CommandCenter extends ListenerAdapter {
     @Override
     public void onSlashCommandInteraction(@Nonnull SlashCommandInteractionEvent event) {
         LOGGER.debug("Capturing slash event for command " + event.getName());
-        ISlashHandler command = slashHandlers.get(event.getName());
+        ISlashInteraction command = slashHandlers.get(event.getName());
         try {
             if (command != null) command.onCommand(event);
         }

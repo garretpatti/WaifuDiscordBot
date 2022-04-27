@@ -1,4 +1,4 @@
-package com.github.waifu.commands.slash;
+package com.github.waifu.interactions.slash;
 
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class SlashMagic8 implements ISlashHandler {
+public class SlashMagic8 implements ISlashInteraction {
 
     private static final List<String> answers = new ArrayList<>();
 

@@ -1,4 +1,4 @@
-package com.github.waifu.commands.slash;
+package com.github.waifu.interactions.slash;
 
 import com.github.waifu.http.helpers.TenorHandler;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -10,12 +10,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
-public class SlashBaseTenorSearch implements ISlashHandler {
+public class SlashBaseTenorSearch implements ISlashInteraction {
 
     public static final Logger LOGGER = LoggerFactory.getLogger(SlashBaseTenorSearch.class);
 

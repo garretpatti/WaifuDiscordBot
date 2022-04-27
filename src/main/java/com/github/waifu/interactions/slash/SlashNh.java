@@ -1,4 +1,4 @@
-package com.github.waifu.commands.slash;
+package com.github.waifu.interactions.slash;
 
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -11,7 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.List;
@@ -19,7 +18,7 @@ import java.util.Map;
 
 import static net.dv8tion.jda.api.interactions.commands.privileges.CommandPrivilege.Type.ROLE;
 
-public class SlashNh implements ISlashHandler {
+public class SlashNh implements ISlashInteraction {
 
     private final Logger LOGGER = LoggerFactory.getLogger(SlashNh.class);
 
