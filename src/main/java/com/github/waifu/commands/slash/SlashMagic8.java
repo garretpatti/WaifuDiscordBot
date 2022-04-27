@@ -5,13 +5,13 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.privileges.CommandPrivilege;
-import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class SlashMagic8 extends SlashCommandHandler {
+public class SlashMagic8 implements ISlashHandler {
 
     private static final List<String> answers = new ArrayList<>();
 
@@ -44,12 +44,13 @@ public class SlashMagic8 extends SlashCommandHandler {
         );
     }
 
+    @Nonnull
     @Override
     public String getName() {
         return "magic8";
     }
 
-    @NotNull
+    @Nonnull
     @Override
     public CommandData getCommand() {
         return Commands.slash(this.getName(), "Peer into the depths of your destiny.")

@@ -24,27 +24,32 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.StreamSupport;
 
-public class SlashPokemon extends SlashCommandHandler {
+public class SlashPokemon implements ISlashHandler {
 
     public static final Logger LOGGER = LoggerFactory.getLogger(SlashPokemon.class);
 
+    @Nonnull
+    @Override
     public String getName() { return "pokemon"; }
 
     @Nonnull
+    @Override
     public CommandData getCommand() {
         return Commands.slash(this.getName(), "Who's that Pokemon?")
             .addOption(OptionType.STRING, "get", "Get a specific pokemon by name or number", false);
     }
 
+    @Override
     public boolean isGlobal() { return false; }
 
-    @Nullable
+    @Override
     public Map<Long, List<CommandPrivilege>> getPrivileges() {
         return Map.of(
             879891493840617543L, List.of()
         );
     }
 
+    @Override
     public void onCommand(SlashCommandInteractionEvent event) {
         event.deferReply().queue();
         new Thread(() -> {

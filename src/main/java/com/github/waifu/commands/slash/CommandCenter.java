@@ -19,7 +19,7 @@ public class CommandCenter extends ListenerAdapter {
     public static final Logger LOGGER = LoggerFactory.getLogger(CommandCenter.class);
     private static final CommandCenter singleton = new CommandCenter();
 
-    private final Map<String, SlashCommandHandler> commands = new HashMap<>();
+    private final Map<String, ISlashHandler> slashHandlers = new HashMap<>();
     private final Map<String, IButtonInteraction> buttonHandlers = new HashMap<>();
 
     private CommandCenter() {}
@@ -41,9 +41,15 @@ public class CommandCenter extends ListenerAdapter {
                 new SlashBasicResponse("kanyon", "bruh", "Bing bong!"),
                 new SlashMagic8(),
                 new SlashEmote()
-        ).forEach((t) -> {
-            if (Optional.ofNullable(t.getName()).orElse("").trim().equals("")) {
-                LOGGER.warn(String.format("A command of Type %s with no name was provided. It will not be registered.", t.getClass().getSimpleName()));
+        ).forEach(t -> {
+            try {
+                // TODO Discord uses the crazy regex as the naming rule for commands
+                // ^[-_\p{L}\p{N}\p{sc=Deva}\p{sc=Thai}]{1,32}$
+                Optional.of(t.getName());
+            }
+            catch (NullPointerException npe) {
+                LOGGER.warn(String.format("A command of Type %s with no name was provided. It will not be registered.",
+                        t.getClass().getSimpleName()));
                 return;
             }
             if (t.isGlobal()) {
@@ -63,7 +69,7 @@ public class CommandCenter extends ListenerAdapter {
                 });
             }
             LOGGER.info(String.format("Finished registering command %s", t.getName()));
-            commands.put(t.getName(), t);
+            slashHandlers.put(t.getName(), t);
             if (t instanceof IButtonInteraction handler) {
                 handler.getButtons().forEach(b -> {
                     LOGGER.info(String.format("Registering button handler %s for command %s",
@@ -73,13 +79,13 @@ public class CommandCenter extends ListenerAdapter {
                 });
             }
         });
-        LOGGER.info("Slash commands finished registering.");
+        LOGGER.info("Interactions finished registering.");
     }
 
     @Override
     public void onSlashCommandInteraction(@Nonnull SlashCommandInteractionEvent event) {
         LOGGER.debug("Capturing slash event for command " + event.getName());
-        SlashCommandHandler command = commands.get(event.getName());
+        ISlashHandler command = slashHandlers.get(event.getName());
         try {
             if (command != null) command.onCommand(event);
         }

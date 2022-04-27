@@ -22,12 +22,13 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-public class SlashEmote extends SlashCommandHandler implements IButtonInteraction {
+public class SlashEmote implements ISlashHandler, IButtonInteraction {
 
     public static final Logger LOGGER = LoggerFactory.getLogger(SlashEmote.class);
     private static final Button APPROVE = Button.success("emote-add-approve", "Approve");
     private static final Button DENY = Button.danger("emote-add-deny", "Deny");
 
+    @Nonnull
     @Override
     public String getName() { return "emote"; }
 

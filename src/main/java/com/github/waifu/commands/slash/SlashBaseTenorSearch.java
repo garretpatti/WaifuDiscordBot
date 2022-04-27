@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
-public class SlashBaseTenorSearch extends SlashCommandHandler {
+public class SlashBaseTenorSearch implements ISlashHandler {
 
     public static final Logger LOGGER = LoggerFactory.getLogger(SlashBaseTenorSearch.class);
 
@@ -29,17 +29,21 @@ public class SlashBaseTenorSearch extends SlashCommandHandler {
         this.searchPhrase = phrase;
     }
 
+    @Nonnull
     @Override
     public String getName() { return this.name; }
 
     @Nonnull
+    @Override
     public CommandData getCommand() { return Commands.slash(this.name, this.description); }
 
+    @Override
     public boolean isGlobal() { return false; }
 
-    @Nullable
+    @Override
     public Map<Long, List<CommandPrivilege>> getPrivileges() { return Map.of(879891493840617543L, List.of()); }
 
+    @Override
     public void onCommand(SlashCommandInteractionEvent event) {
         event.deferReply().queue();
         Consumer<Exception> error = e -> {

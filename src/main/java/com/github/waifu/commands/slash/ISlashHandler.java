@@ -9,17 +9,17 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 
-public abstract class SlashCommandHandler {
-
-    public abstract String getName();
+public interface ISlashHandler {
+    @Nonnull
+    String getName();
 
     @Nonnull
-    public abstract CommandData getCommand();
+    CommandData getCommand();
 
-    public boolean isGlobal() { return true; }
+    default boolean isGlobal() { return true; }
 
     @Nullable
-    public Map<Long, List<CommandPrivilege>> getPrivileges() { return Map.of(); }
+    Map<Long, List<CommandPrivilege>> getPrivileges();
 
-    public abstract void onCommand(SlashCommandInteractionEvent event);
+    void onCommand(SlashCommandInteractionEvent event);
 }

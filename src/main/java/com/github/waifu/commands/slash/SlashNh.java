@@ -19,10 +19,12 @@ import java.util.Map;
 
 import static net.dv8tion.jda.api.interactions.commands.privileges.CommandPrivilege.Type.ROLE;
 
-public class SlashNh extends SlashCommandHandler {
+public class SlashNh implements ISlashHandler {
 
     private final Logger LOGGER = LoggerFactory.getLogger(SlashNh.class);
 
+    @Nonnull
+    @Override
     public String getName() { return "nh"; }
 
     @Nonnull
@@ -39,7 +41,6 @@ public class SlashNh extends SlashCommandHandler {
     @Override
     public boolean isGlobal() { return false; }
 
-    @Nullable
     @Override
     public Map<Long, List<CommandPrivilege>> getPrivileges() {
         return Map.of(

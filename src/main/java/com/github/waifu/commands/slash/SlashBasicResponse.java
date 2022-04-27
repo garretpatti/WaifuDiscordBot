@@ -9,7 +9,7 @@ import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Map;
 
-public class SlashBasicResponse extends SlashCommandHandler {
+public class SlashBasicResponse implements ISlashHandler {
 
     private final String command;
     private final String response;
@@ -21,6 +21,8 @@ public class SlashBasicResponse extends SlashCommandHandler {
         this.description = description;
     }
 
+    @Nonnull
+    @Override
     public String getName() { return this.command; }
 
     @Nonnull
