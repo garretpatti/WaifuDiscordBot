@@ -1,5 +1,4 @@
-package com.github.waifu;
-import com.github.waifu.commands.*;
+package com.github.waifu.chat;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -20,7 +19,8 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-import com.github.waifu.commands.tenor.TenorHandler;
+import com.github.waifu.App;
+import com.github.waifu.chat.commands.*;
 import com.google.gson.JsonArray;
 
 public class ResponseCenter extends ListenerAdapter{
@@ -100,54 +100,26 @@ public class ResponseCenter extends ListenerAdapter{
                         textChannel.sendMessage(r).queue();
                 };
 
-                //search the message for commands
-                /*
-                for (JsonElement command : commandList) {
-                    try {
-                        String commandName = command.getAsJsonObject().get("command").getAsString();
-                        if (command.isJsonObject() && strMsg.contains(commandName)) {
-                            String handlerName = command.getAsJsonObject().get("handler").getAsString().toLowerCase();
-                            switch (handlerName) {
-                                case "simple":
-                                    JsonArray simpleResponses = command.getAsJsonObject().get("response_list").getAsJsonArray();
-                                    String allowedChannels = command.getAsJsonObject().get("channels").getAsString().toLowerCase();
-                                    if (channelAccepted(allowedChannels, textChannel))
-                                        SimpleHandler.respond(simpleResponses, textResponseConsumer, memeErrorConsumer);
-                                    break;
-                                case "tenor": //currently doesn't accept parameters
-                                    JsonElement tenorInputs = command.getAsJsonObject().get("searches");
-                                    TenorHandler.getSearchResults(tenorInputs.getAsJsonArray(), memeResponseConsumer, memeErrorConsumer);
-                                    break;
-                                default:
-                                    LOGGER.warn(String.format("Command %s calls for handler %s. Which does not exist", commandName, handlerName));
-
-                            }
-                        }
-                    } catch (Exception e) {
-                        memeErrorConsumer.accept(e);
-                    }
-                }
-                */
                 for (String mapKey : responseMap.keySet()) {
                     if (strMsg.contains(mapKey)) {
                         responseMap.get(mapKey).respond(event, textResponseConsumer, errorConsumer);
                     }
                 }
                 //search the message for reaction keywords
-                for (JsonElement reaction : reactionList) {
-                    try {
-                        String reactionKW = reaction.getAsJsonObject().get("keyword").getAsString().toLowerCase();
-                        String allowedChannels = reaction.getAsJsonObject().get("channels").getAsString().toLowerCase();
-                        if(strMsg.contains(reactionKW) && (channelAccepted(allowedChannels, textChannel))) {
-                            JsonArray possibleReactions = reaction.getAsJsonObject().get("reaction_list").getAsJsonArray();
-                            String selectedReaction = possibleReactions.get(randomGen.nextInt(possibleReactions.size())).getAsString();
-                            msg.addReaction(selectedReaction).queue();
-                        }
-                    } catch (Exception e) {
-                        errorConsumer.accept(e);
-                    }
+                // for (JsonElement reaction : reactionList) {
+                //     try {
+                //         String reactionKW = reaction.getAsJsonObject().get("keyword").getAsString().toLowerCase();
+                //         String allowedChannels = reaction.getAsJsonObject().get("channels").getAsString().toLowerCase();
+                //         if(strMsg.contains(reactionKW) && (channelAccepted(allowedChannels, textChannel))) {
+                //             JsonArray possibleReactions = reaction.getAsJsonObject().get("reaction_list").getAsJsonArray();
+                //             String selectedReaction = possibleReactions.get(randomGen.nextInt(possibleReactions.size())).getAsString();
+                //             msg.addReaction(selectedReaction).queue();
+                //         }
+                //     } catch (Exception e) {
+                //         errorConsumer.accept(e);
+                //     }
 
-                }
+                // }
             }
         }
     }

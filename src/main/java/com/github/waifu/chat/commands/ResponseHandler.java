@@ -1,4 +1,4 @@
-package com.github.waifu.commands;
+package com.github.waifu.chat.commands;
 
 import java.util.ArrayList;
 import java.util.function.Consumer;

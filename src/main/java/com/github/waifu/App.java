@@ -1,5 +1,6 @@
 package com.github.waifu;
 
+import com.github.waifu.chat.ResponseCenter;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import net.dv8tion.jda.api.JDA;
