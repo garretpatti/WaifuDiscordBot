@@ -1,6 +1,7 @@
 package com.github.waifu.commands.tenor;
 
 import com.github.waifu.commands.SlashCommandHandler;
+import com.github.waifu.http.helpers.TenorHandler;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.privileges.CommandPrivilege;

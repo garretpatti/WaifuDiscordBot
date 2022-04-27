@@ -1,11 +1,11 @@
 package com.github.waifu;
 
+import com.github.waifu.chat.ResponseCenter;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.GatewayIntent;
@@ -49,7 +49,8 @@ public class App extends ListenerAdapter {
 
 		JDABuilder builder = JDABuilder.createLight(TOKEN, GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_MESSAGE_REACTIONS);
 		CommandCenter cmdCntr = CommandCenter.getSingleton();
-		builder.addEventListeners(new App(), cmdCntr);
+		ResponseCenter rspCntr = ResponseCenter.getSingleton();
+		builder.addEventListeners(new App(), rspCntr, cmdCntr);
 		JDA bot;
 		try {
 			bot = builder.build();

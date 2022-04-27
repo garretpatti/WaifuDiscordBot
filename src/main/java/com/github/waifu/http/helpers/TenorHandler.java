@@ -1,4 +1,4 @@
-package com.github.waifu.commands.tenor;
+package com.github.waifu.http.helpers;
 
 import org.json.JSONObject;
 
