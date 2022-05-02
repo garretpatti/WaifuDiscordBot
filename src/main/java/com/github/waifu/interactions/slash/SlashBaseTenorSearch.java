@@ -4,14 +4,12 @@ import com.github.waifu.http.helpers.TenorHandler;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
-import net.dv8tion.jda.api.interactions.commands.privileges.CommandPrivilege;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Consumer;
 
 public class SlashBaseTenorSearch implements ISlashInteraction {
@@ -37,10 +35,7 @@ public class SlashBaseTenorSearch implements ISlashInteraction {
     public CommandData getCommand() { return Commands.slash(this.name, this.description); }
 
     @Override
-    public boolean isGlobal() { return false; }
-
-    @Override
-    public Map<Long, List<CommandPrivilege>> getPrivileges() { return Map.of(879891493840617543L, List.of()); }
+    public List<Long> getGuilds() { return List.of(879891493840617543L); }
 
     @Override
     public void onCommand(SlashCommandInteractionEvent event) {

@@ -32,14 +32,7 @@ public class SlashBasicResponse implements ISlashInteraction {
     }
 
     @Override
-    public boolean isGlobal() { return false; }
-
-    @Override
-    public Map<Long, List<CommandPrivilege>> getPrivileges() {
-        return Map.of(
-            879891493840617543L, List.of()
-        );
-    }
+    public List<Long> getGuilds() { return List.of(879891493840617543L); }
 
     @Override
     public void onCommand(SlashCommandInteractionEvent event) {

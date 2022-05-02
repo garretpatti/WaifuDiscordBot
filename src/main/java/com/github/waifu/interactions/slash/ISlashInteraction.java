@@ -2,12 +2,10 @@ package com.github.waifu.interactions.slash;
 
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
-import net.dv8tion.jda.api.interactions.commands.privileges.CommandPrivilege;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
-import java.util.Map;
 
 public interface ISlashInteraction {
     @Nonnull
@@ -16,10 +14,8 @@ public interface ISlashInteraction {
     @Nonnull
     CommandData getCommand();
 
-    default boolean isGlobal() { return true; }
-
     @Nullable
-    Map<Long, List<CommandPrivilege>> getPrivileges();
+    default List<Long> getGuilds() { return List.of(); }
 
     void onCommand(SlashCommandInteractionEvent event);
 }

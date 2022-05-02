@@ -7,6 +7,7 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.internal.utils.Checks;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,34 +45,38 @@ public class InteractionCenter extends ListenerAdapter {
                 new SlashMagic8(),
                 new SlashEmote()
         ).forEach(t -> {
+            // TODO Discord uses the crazy regex as the naming rule for commands
+            // ^[-_\p{L}\p{N}\p{sc=Deva}\p{sc=Thai}]{1,32}$
             try {
-                // TODO Discord uses the crazy regex as the naming rule for commands
-                // ^[-_\p{L}\p{N}\p{sc=Deva}\p{sc=Thai}]{1,32}$
-                Optional.of(t.getName());
+                Checks.notBlank(t.getName(),"Command name");
             }
-            catch (NullPointerException npe) {
-                LOGGER.warn(String.format("A command of Type %s with no name was provided. It will not be registered.",
-                        t.getClass().getSimpleName()));
+            catch (IllegalStateException e) {
+                LOGGER.error(
+                    String.format(
+                        "A command of Type %s with no name was provided. It will not be registered.",
+                        t.getClass().getSimpleName()),
+                    e);
                 return;
             }
-            if (t.isGlobal()) {
-                bot.upsertCommand(t.getCommand()).queue(l ->
-                    Optional.ofNullable(t.getPrivileges()).orElse(Map.of()).forEach( (g, p) -> {
-                        Guild guild = bot.getGuildById(g);
-                        if (guild != null) l.updatePrivileges(guild, p).queue();
-                    })
-                );
+
+            List<Long> guilds = t.getGuilds();
+            if (Optional.ofNullable(guilds).orElse(List.of()).isEmpty()) {
+                bot.upsertCommand(t.getCommand()).queue(command -> {
+                    LOGGER.info(String.format("Global command %s registered", command.getName()));
+                });
             }
             else {
-                Optional.ofNullable(t.getPrivileges()).orElse(Map.of()).forEach( (g, p) -> {
+                guilds.forEach( g -> {
                     Guild guild = bot.getGuildById(g);
                     if (guild != null) {
-                        guild.upsertCommand(t.getCommand()).queue(l -> l.updatePrivileges(guild, p).queue());
+                        guild.upsertCommand(t.getCommand()).queue(command -> {
+                            LOGGER.info(String.format("Command %s registered for guild %d", command.getName(), g));
+                        });
                     }
                 });
             }
-            LOGGER.info(String.format("Finished registering command %s", t.getName()));
             slashHandlers.put(t.getName(), t);
+
             if (t instanceof IButtonInteraction handler) {
                 handler.getButtons().forEach(b -> {
                     LOGGER.info(String.format("Registering button handler %s for command %s",
@@ -81,7 +86,6 @@ public class InteractionCenter extends ListenerAdapter {
                 });
             }
         });
-        LOGGER.info("Interactions finished registering.");
     }
 
     @Override
