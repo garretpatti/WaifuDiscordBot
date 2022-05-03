@@ -3,9 +3,7 @@ package com.github.waifu.interactions.slash;
 import com.github.waifu.interactions.buttons.IButtonInteraction;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Icon;
-import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
@@ -13,7 +11,6 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
-import net.dv8tion.jda.api.interactions.commands.privileges.CommandPrivilege;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +18,6 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 
 public class SlashEmote implements ISlashInteraction, IButtonInteraction {
 
@@ -59,19 +55,20 @@ public class SlashEmote implements ISlashInteraction, IButtonInteraction {
                         event.getHook().sendMessage("An emote already exists by this name. Please choose another alias.").queue();
                     } else {
                         event.getOption("emote", OptionMapping::getAsAttachment).downloadToFile().thenAcceptAsync(f -> {
+                            Member requestor = event.getMember();
                             try {
                                 if (f.length() > 262144) {
-                                    event.getHook().sendMessage("The submitted file is too large for an emote. The maximum size is 256.0 kb.").queue();
+                                    event.getHook().sendMessage(requestor.getAsMention() + " The submitted file is too large for an emote. The maximum size is 256.0 kb.").queue();
                                 }
                                 else if (event.getMember().hasPermission(Permission.MANAGE_EMOTES_AND_STICKERS)) {
                                     event.getGuild().createEmote(name, Icon.from(f)).queue(e -> {
                                         event.getHook().editOriginal(new MessageBuilder()
-                                            .setContent("Emote successfully created: " + e.getAsMention()).build()).queue();
+                                            .setContent(requestor.getAsMention() + " Emote successfully created: " + e.getAsMention()).build()).queue();
                                     });
                                 } else {
                                     event.getHook()
                                         .sendFile(f)
-                                        .setContent(String.format("Pending moderator approval: %s", name))
+                                        .setContent(String.format("Name: %s\nRequestor: %s", name, requestor.getAsMention()))
                                         .addActionRow(this.getButtons()).queue();
                                 }
                             } catch (IOException ioe) {
@@ -95,18 +92,21 @@ public class SlashEmote implements ISlashInteraction, IButtonInteraction {
     public void onInteract(ButtonInteractionEvent event) {
         Guild guild = event.getGuild();
         if (guild != null) {
+            Message request = event.getMessage();
             Member member = event.getMember();
             if (member != null && member.hasPermission(Permission.MANAGE_EMOTES_AND_STICKERS)) {
+                event.deferReply().queue();
                 String id = event.getComponentId();
+                User mention = request.getMentionedUsers().get(0);
+                String requester = mention != null ? String.format("%s ", mention.getAsMention()) : "";
+                String msg[] = request.getContentRaw().split("\n");
+                String name = msg[0].substring(msg[0].indexOf(":") + 2);
                 if (id.equals(APPROVE.getId())) {
-                    event.deferEdit().queue();
-                    String msg = event.getMessage().getContentDisplay();
-                    String name = msg.substring(msg.indexOf(":") + 2);
                     event.getMessage().getAttachments().get(0).downloadToFile().thenAcceptAsync(f -> {
                         try {
                             event.getGuild().createEmote(name, Icon.from(f)).queue(e -> {
                                 event.getHook().editOriginalComponents(List.of()).queue();
-                                event.getHook().editOriginal("Request was approved: " + e.getAsMention()).queue();
+                                event.getHook().sendMessage(requester + "Request was approved: " + e.getAsMention()).queue();
                             });
                         } catch (IOException ioe) {
                             LOGGER.error("An error occurred while creating Icon for an emote file.", ioe);
@@ -115,9 +115,8 @@ public class SlashEmote implements ISlashInteraction, IButtonInteraction {
                         }
                     });
                 } else if (id.equals(DENY.getId())) {
-                    event.deferEdit().queue();
                     event.getHook().editOriginalComponents(List.of()).queue();
-                    event.getHook().editOriginal("Request was denied").queue();
+                    event.getHook().sendMessage(requester + "Request was denied").queue();
                 }
             } else {
                 event.reply("You do not have permission to respond to this.").setEphemeral(true).queue();
