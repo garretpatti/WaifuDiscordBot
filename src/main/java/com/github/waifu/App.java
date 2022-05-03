@@ -18,6 +18,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Scanner;
 
 /**
  * @author Spitfyre03
@@ -74,6 +75,25 @@ public class App extends ListenerAdapter {
 
 		bot.awaitReady();
 		cmdCntr.registerCommands(bot);
+		new Thread(() -> {
+			Scanner input = new Scanner(System.in);
+			while (true) {
+				if (input.hasNext()) {
+					String cmd = input.next();
+					if (cmd.equals("stop")) {
+						bot.shutdown();
+						LOGGER.info("Bot shutting down.");
+						break;
+					}
+					else if (cmd.equals("kill")) {
+						bot.shutdownNow();
+						LOGGER.warn("Bot is being forcefully shut down.");
+						break;
+					}
+				}
+			}
+			input.close();
+		}, "App-Shutdown-Hook").start();
 	}
 
 	@Override
