@@ -95,7 +95,7 @@ public class SlashEmote implements ISlashInteraction, IButtonInteraction {
             Message request = event.getMessage();
             Member member = event.getMember();
             if (member != null && member.hasPermission(Permission.MANAGE_EMOTES_AND_STICKERS)) {
-                event.deferReply().queue();
+                event.deferEdit().queue();
                 String id = event.getComponentId();
                 User mention = request.getMentionedUsers().get(0);
                 String requester = mention != null ? String.format("%s ", mention.getAsMention()) : "";
