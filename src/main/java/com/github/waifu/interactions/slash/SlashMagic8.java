@@ -58,9 +58,6 @@ public class SlashMagic8 implements ISlashInteraction {
     }
 
     @Override
-    public List<Long> getGuilds() { return List.of(879891493840617543L); }
-
-    @Override
     public void onCommand(SlashCommandInteractionEvent event) {
         event.reply(answers.get((int)(Math.random() * answers.size()))).queue();
     }

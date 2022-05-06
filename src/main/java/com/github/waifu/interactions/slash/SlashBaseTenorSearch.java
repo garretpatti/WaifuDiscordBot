@@ -35,9 +35,6 @@ public class SlashBaseTenorSearch implements ISlashInteraction {
     public CommandData getCommand() { return Commands.slash(this.name, this.description); }
 
     @Override
-    public List<Long> getGuilds() { return List.of(879891493840617543L); }
-
-    @Override
     public void onCommand(SlashCommandInteractionEvent event) {
         event.deferReply().queue();
         Consumer<Exception> error = e -> {

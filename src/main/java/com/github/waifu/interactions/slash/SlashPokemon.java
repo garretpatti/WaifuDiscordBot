@@ -39,9 +39,6 @@ public class SlashPokemon implements ISlashInteraction {
     }
 
     @Override
-    public List<Long> getGuilds() { return List.of(879891493840617543L); }
-
-    @Override
     public void onCommand(SlashCommandInteractionEvent event) {
         event.deferReply().queue();
         new Thread(() -> {

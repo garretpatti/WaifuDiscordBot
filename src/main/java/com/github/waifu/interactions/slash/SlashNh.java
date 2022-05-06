@@ -38,9 +38,6 @@ public class SlashNh implements ISlashInteraction {
     }
 
     @Override
-    public List<Long> getGuilds() { return List.of(879891493840617543L); }
-
-    @Override
     public void onCommand(SlashCommandInteractionEvent event) {
         LOGGER.debug("Replying to nh command.");
         TextChannel ch = (TextChannel) event.getChannel();

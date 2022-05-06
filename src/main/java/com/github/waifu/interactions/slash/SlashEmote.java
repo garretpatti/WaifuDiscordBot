@@ -41,9 +41,6 @@ public class SlashEmote implements ISlashInteraction, IButtonInteraction {
     }
 
     @Override
-    public List<Long> getGuilds() { return List.of(879891493840617543L); }
-
-    @Override
     public void onCommand(SlashCommandInteractionEvent event) {
         if (event.isFromGuild()) {
             event.deferReply().queue();
