@@ -57,8 +57,6 @@ public class InteractionCenter extends ListenerAdapter {
             globalCommandsFuture, (_void, globalCommands) -> {
                 Map<Long, List<Command>> guildCommands = guildCommandsFuture
                     .entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, v -> v.getValue().join()));
-                List<CompletableFuture<Command>> globalQueued = new ArrayList<>();
-                List<CompletableFuture<Command>> guildQueued = new ArrayList<>();
                 commandsToRegister.forEach(t -> {
                     // TODO Discord uses the crazy regex as the naming rule for commands
                     // ^[-_\p{L}\p{N}\p{sc=Deva}\p{sc=Thai}]{1,32}$
@@ -77,16 +75,18 @@ public class InteractionCenter extends ListenerAdapter {
 
                     List<Long> guildsToRegister = t.getGuilds();
                     if (Optional.ofNullable(guildsToRegister).orElse(List.of()).isEmpty()) {
-                        globalQueued.add(bot.upsertCommand(t.getCommand()).submit());
-                        LOGGER.debug(String.format("Global command %s queued to register", t.getName()));
+                        bot.upsertCommand(t.getCommand()).queue(cmd ->
+                            LOGGER.debug(String.format("Global command %s queued to register", t.getName()))
+                        );
                         globalCommands.removeIf(gCmd -> gCmd.getName().equals(t.getName()));
                     }
                     else {
                         guildsToRegister.forEach(g -> {
                             Guild guildToRegister = bot.getGuildById(g);
                             if (guildToRegister != null) {
-                                guildQueued.add(guildToRegister.upsertCommand(t.getCommand()).submit());
-                                LOGGER.debug(String.format("Command %s queued to register for guild %d", t.getName(), g));
+                                guildToRegister.upsertCommand(t.getCommand()).queue(cmd ->
+                                    LOGGER.debug(String.format("Command %s queued to register for guild %d", t.getName(), g))
+                                );
                                 guildCommands.get(g).removeIf(gCmd -> gCmd.getName().equals(t.getName()));
                             }
                         });
@@ -102,24 +102,20 @@ public class InteractionCenter extends ListenerAdapter {
                         });
                     }
                 });
-                CompletableFuture.allOf(globalQueued.toArray(new CompletableFuture[0])).thenRunAsync(() -> {
-                    globalCommands.forEach(cmd -> {
+                globalCommands.forEach(cmd -> {
+                    if (cmd != null) {
+                        cmd.delete().queue();
+                        LOGGER.info(String.format("Queued deletion of global command %s", cmd.getName()));
+                    }
+                });
+                guildCommands.forEach(
+                    (key, val) -> val.forEach(cmd -> {
                         if (cmd != null) {
                             cmd.delete().queue();
-                            LOGGER.info(String.format("Queued deletion of global command %s", cmd.getName()));
+                            LOGGER.info(String.format("Queued deletion of command %s for guild %d", cmd.getName(), key));
                         }
-                    });
-                });
-                CompletableFuture.allOf(guildQueued.toArray(new CompletableFuture[0])).thenRunAsync(() -> {
-                    guildCommands.forEach(
-                        (key, val) -> val.forEach(cmd -> {
-                            if (cmd != null) {
-                                cmd.delete().queue();
-                                LOGGER.info(String.format("Queued deletion of command %s for guild %d", cmd.getName(), key));
-                            }
-                        })
-                    );
-                });
+                    })
+                );
             }
         );
     }
