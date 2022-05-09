@@ -6,21 +6,19 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
-import net.dv8tion.jda.api.interactions.commands.privileges.CommandPrivilege;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.List;
-import java.util.Map;
-
-import static net.dv8tion.jda.api.interactions.commands.privileges.CommandPrivilege.Type.ROLE;
 
 public class SlashNh implements ISlashInteraction {
 
     private final Logger LOGGER = LoggerFactory.getLogger(SlashNh.class);
+
+    @SlashCommand
+    public static final SlashNh nh = new SlashNh();
 
     @Nonnull
     @Override

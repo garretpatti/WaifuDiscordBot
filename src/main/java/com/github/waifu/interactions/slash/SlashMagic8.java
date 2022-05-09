@@ -4,18 +4,18 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
-import net.dv8tion.jda.api.interactions.commands.privileges.CommandPrivilege;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class SlashMagic8 implements ISlashInteraction {
 
-    private static final List<String> answers = new ArrayList<>();
+    @SlashCommand
+    public static final SlashMagic8 magic8 = new SlashMagic8();
 
-    public SlashMagic8() {
+    private static final List<String> answers = new ArrayList<>();
+    static {
         answers.addAll(
             List.of(
                 "Yes",

@@ -1,7 +1,8 @@
 package com.github.waifu.interactions;
 
 import com.github.waifu.interactions.buttons.IButtonInteraction;
-import com.github.waifu.interactions.slash.*;
+import com.github.waifu.interactions.slash.ISlashInteraction;
+import com.github.waifu.interactions.slash.SlashCommand;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -46,48 +47,58 @@ public class InteractionCenter extends ListenerAdapter {
                 Map<Long, List<Command>> guildCommands = guildCommandsFuture
                     .entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, v -> v.getValue().join()));
                 commandsToRegister.forEach(t -> {
-                    // TODO Discord uses the crazy regex as the naming rule for commands
-                    // ^[-_\p{L}\p{N}\p{sc=Deva}\p{sc=Thai}]{1,32}$
-                    try {
-                        Checks.notBlank(t.getName(), "Command name");
-                    }
-                    catch (IllegalStateException e) {
-                        LOGGER.error(
+                    if (!(t instanceof ISlashInteraction slash)) {
+                        LOGGER.warn(
                             String.format(
-                                "A command of Type %s with no name was provided. It will not be registered.",
-                                t.getClass().getSimpleName())
-                            , e
+                                "An object of type %s is not an instance of ISlashInteraction. It will not be registered",
+                                t.getClass().getSimpleName()
+                            )
                         );
-                        return;
-                    }
-
-                    List<Long> guildsToRegister = t.getGuilds();
-                    if (Optional.ofNullable(guildsToRegister).orElse(List.of()).isEmpty()) {
-                        bot.upsertCommand(t.getCommand()).queue(cmd ->
-                            LOGGER.debug(String.format("Global command %s queued to register", t.getName()))
-                        );
-                        globalCommands.removeIf(gCmd -> gCmd.getName().equals(t.getName()));
                     }
                     else {
-                        guildsToRegister.forEach(g -> {
-                            Guild guildToRegister = bot.getGuildById(g);
-                            if (guildToRegister != null) {
-                                guildToRegister.upsertCommand(t.getCommand()).queue(cmd ->
-                                    LOGGER.debug(String.format("Command %s queued to register for guild %d", t.getName(), g))
-                                );
-                                guildCommands.get(g).removeIf(gCmd -> gCmd.getName().equals(t.getName()));
-                            }
-                        });
-                    }
-                    slashHandlers.put(t.getName(), t);
+                        // TODO Discord uses the crazy regex as the naming rule for commands
+                        // ^[-_\p{L}\p{N}\p{sc=Deva}\p{sc=Thai}]{1,32}$
+                        try {
+                            Checks.notBlank(slash.getName(), "Command name");
+                        }
+                        catch (IllegalStateException e) {
+                            LOGGER.error(
+                                String.format(
+                                    "A command of Type %s with no name was provided. It will not be registered.",
+                                    t.getClass().getSimpleName()),
+                                e
+                            );
+                            return;
+                        }
 
-                    if (t instanceof IButtonInteraction handler) {
-                        handler.getButtons().forEach(b -> {
-                            LOGGER.debug(String.format("Registering button handler %s for command %s",
-                                b.getId(),
-                                t.getName()));
-                            buttonHandlers.put(b.getId(), handler);
-                        });
+                        List<Long> guildsToRegister = slash.getGuilds();
+                        if (Optional.ofNullable(guildsToRegister).orElse(List.of()).isEmpty()) {
+                            bot.upsertCommand(slash.getCommand()).queue(cmd ->
+                                LOGGER.debug(String.format("Global command %s queued to register", slash.getName()))
+                            );
+                            globalCommands.removeIf(gCmd -> gCmd.getName().equals(slash.getName()));
+                        }
+                        else {
+                            guildsToRegister.forEach(g -> {
+                                Guild guildToRegister = bot.getGuildById(g);
+                                if (guildToRegister != null) {
+                                    guildToRegister.upsertCommand(slash.getCommand()).queue(cmd ->
+                                        LOGGER.debug(String.format("Command %s queued to register for guild %d", slash.getName(), g))
+                                    );
+                                    guildCommands.get(g).removeIf(gCmd -> gCmd.getName().equals(slash.getName()));
+                                }
+                            });
+                        }
+                        slashHandlers.put(slash.getName(), slash);
+
+                        if (slash instanceof IButtonInteraction handler) {
+                            handler.getButtons().forEach(b -> {
+                                LOGGER.debug(String.format("Registering button handler %s for command %s",
+                                    b.getId(),
+                                    slash.getName()));
+                                buttonHandlers.put(b.getId(), handler);
+                            });
+                        }
                     }
                 });
                 globalCommands.forEach(cmd -> {

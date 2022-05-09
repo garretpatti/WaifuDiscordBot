@@ -21,6 +21,9 @@ import java.util.List;
 
 public class SlashEmote implements ISlashInteraction, IButtonInteraction {
 
+    @SlashCommand
+    public static final SlashEmote emote = new SlashEmote();
+
     public static final Logger LOGGER = LoggerFactory.getLogger(SlashEmote.class);
     private static final Button APPROVE = Button.success("emote-add-approve", "Approve");
     private static final Button DENY = Button.danger("emote-add-deny", "Deny");

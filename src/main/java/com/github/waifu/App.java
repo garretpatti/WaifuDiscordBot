@@ -34,7 +34,7 @@ public class App extends ListenerAdapter {
 
 	private App() {}
 
-	public App getSingleton() { return singleton; }
+	public static App getSingleton() { return singleton; }
 
 	public static void main(String[] args) throws InterruptedException {
 		try {

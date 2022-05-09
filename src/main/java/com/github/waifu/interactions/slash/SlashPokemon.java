@@ -7,7 +7,6 @@ import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
-import net.dv8tion.jda.api.interactions.commands.privileges.CommandPrivilege;
 import org.apache.commons.collections4.IteratorUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -20,12 +19,14 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.StreamSupport;
 
 public class SlashPokemon implements ISlashInteraction {
 
     public static final Logger LOGGER = LoggerFactory.getLogger(SlashPokemon.class);
+
+    @SlashCommand
+    public static final SlashPokemon poke = new SlashPokemon();
 
     @Nonnull
     @Override
