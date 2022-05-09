@@ -9,6 +9,8 @@ import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.internal.utils.Checks;
+import org.reflections.Reflections;
+import org.reflections.scanners.Scanners;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,21 +34,7 @@ public class InteractionCenter extends ListenerAdapter {
     // should be called after bot starts up
     public void registerCommands(@Nonnull JDA bot) {
         LOGGER.info("Registering slash commands for Waifu");
-        // Add a new instance of your command handler here to register it
-        List<ISlashInteraction> commandsToRegister = List.of(
-            new SlashNh(),
-            new SlashBasicResponse("ping", "Pong!", "Ping test"),
-            new SlashBasicResponse("bing", "Bong!", "Bing bong!"),
-            new SlashBaseTenorSearch("smashing", "Smashing!", "nigel thornberry smashing"),
-            new SlashBaseTenorSearch("cagemebro", "I'm going to steal the Declaration of Independence", "nick cage"),
-            new SlashBaseTenorSearch("deuces", "Peace bitches", "deuces"),
-            new SlashPokemon(),
-            new SlashMagic8(),
-            new SlashEmote(),
-            new SlashBasicResponse("oauth2",
-                "https://discord.com/api/oauth2/authorize?client_id=933960413534617611&permissions=1574075624529&scope=bot%20applications.commands",
-                "Get the invite link for this bot")
-        );
+        List<Object> commandsToRegister = collectSubscribedHandlers();
 
         CompletableFuture<List<Command>> globalCommandsFuture = bot.retrieveCommands().submit();
         Map<Long, CompletableFuture<List<Command>>> guildCommandsFuture = new HashMap<>();
@@ -118,6 +106,23 @@ public class InteractionCenter extends ListenerAdapter {
                 );
             }
         );
+    }
+
+    private List<Object> collectSubscribedHandlers() {
+        Reflections reflections = new Reflections(InteractionCenter.class.getPackageName(), Scanners.FieldsAnnotated);
+        return reflections.getFieldsAnnotatedWith(SlashCommand.class)
+            .stream()
+            .map(field -> {
+                try {
+                    return field.get(null);
+                }
+                catch (Exception e) {
+                    LOGGER.warn("An error was thrown while collecting commands to register", e);
+                    return null;
+                }
+            })
+            .filter(Objects::nonNull)
+            .toList();
     }
 
     @Override
