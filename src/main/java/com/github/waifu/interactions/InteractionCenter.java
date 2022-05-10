@@ -35,94 +35,79 @@ public class InteractionCenter extends ListenerAdapter {
     // should be called after bot starts up
     public void registerCommands(@Nonnull JDA bot) {
         LOGGER.info("Registering slash commands for Waifu");
-        List<Object> commandsToRegister = collectSubscribedHandlers();
+        List<ISlashInteraction> commandsToRegister = collectSubscribedHandlers();
 
         CompletableFuture<List<Command>> globalCommandsFuture = bot.retrieveCommands().submit();
         Map<Long, CompletableFuture<List<Command>>> guildCommandsFuture = new HashMap<>();
-        bot.getGuilds().forEach(g -> {
-            guildCommandsFuture.put(g.getIdLong(), g.retrieveCommands().submit());
-        });
+        bot.getGuilds().forEach(g -> guildCommandsFuture.put(g.getIdLong(), g.retrieveCommands().submit()));
+
         CompletableFuture.allOf(guildCommandsFuture.values().toArray(new CompletableFuture[0])).thenAcceptBothAsync(
             globalCommandsFuture, (_void, globalCommands) -> {
                 Map<Long, List<Command>> guildCommands = guildCommandsFuture
                     .entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, v -> v.getValue().join()));
-                commandsToRegister.forEach(t -> {
-                    if (!(t instanceof ISlashInteraction slash)) {
-                        LOGGER.warn(
+                commandsToRegister.forEach(slash -> {
+                    // TODO Discord uses the crazy regex as the naming rule for commands
+                    // ^[-_\p{L}\p{N}\p{sc=Deva}\p{sc=Thai}]{1,32}$
+                    try {
+                        Checks.notBlank(slash.getName(), "Command name");
+                    }
+                    catch (IllegalStateException e) {
+                        LOGGER.error(
                             String.format(
-                                "An object of type %s is not an instance of ISlashInteraction. It will not be registered",
-                                t.getClass().getSimpleName()
-                            )
+                                "A command of Type %s with no name was provided. It will not be registered.",
+                                slash.getClass().getSimpleName()),
+                            e
                         );
+                        return;
+                    }
+
+                    List<Long> guildsToRegister = slash.getGuilds();
+                    if (Optional.ofNullable(guildsToRegister).orElse(List.of()).isEmpty()) {
+                        bot.upsertCommand(slash.getCommand()).queue(cmd ->
+                            LOGGER.debug(String.format("Global command %s queued to register", slash.getName()))
+                        );
+                        globalCommands.removeIf(gCmd -> gCmd.getName().equals(slash.getName()));
                     }
                     else {
-                        // TODO Discord uses the crazy regex as the naming rule for commands
-                        // ^[-_\p{L}\p{N}\p{sc=Deva}\p{sc=Thai}]{1,32}$
-                        try {
-                            Checks.notBlank(slash.getName(), "Command name");
-                        }
-                        catch (IllegalStateException e) {
-                            LOGGER.error(
-                                String.format(
-                                    "A command of Type %s with no name was provided. It will not be registered.",
-                                    t.getClass().getSimpleName()),
-                                e
-                            );
-                            return;
-                        }
+                        guildsToRegister.forEach(g -> {
+                            Guild guildToRegister = bot.getGuildById(g);
+                            if (guildToRegister != null) {
+                                guildToRegister.upsertCommand(slash.getCommand()).queue(cmd ->
+                                    LOGGER.debug(String.format("Command %s queued to register for guild %d", slash.getName(), g))
+                                );
+                                guildCommands.get(g).removeIf(gCmd -> gCmd.getName().equals(slash.getName()));
+                            }
+                        });
+                    }
+                    slashHandlers.put(slash.getName(), slash);
 
-                        List<Long> guildsToRegister = slash.getGuilds();
-                        if (Optional.ofNullable(guildsToRegister).orElse(List.of()).isEmpty()) {
-                            bot.upsertCommand(slash.getCommand()).queue(cmd ->
-                                LOGGER.debug(String.format("Global command %s queued to register", slash.getName()))
-                            );
-                            globalCommands.removeIf(gCmd -> gCmd.getName().equals(slash.getName()));
-                        }
-                        else {
-                            guildsToRegister.forEach(g -> {
-                                Guild guildToRegister = bot.getGuildById(g);
-                                if (guildToRegister != null) {
-                                    guildToRegister.upsertCommand(slash.getCommand()).queue(cmd ->
-                                        LOGGER.debug(String.format("Command %s queued to register for guild %d", slash.getName(), g))
-                                    );
-                                    guildCommands.get(g).removeIf(gCmd -> gCmd.getName().equals(slash.getName()));
-                                }
-                            });
-                        }
-                        slashHandlers.put(slash.getName(), slash);
-
-                        if (slash instanceof IButtonInteraction handler) {
-                            handler.getButtons().forEach(b -> {
-                                LOGGER.debug(String.format("Registering button handler %s for command %s",
-                                    b.getId(),
-                                    slash.getName()));
-                                buttonHandlers.put(b.getId(), handler);
-                            });
-                        }
+                    if (slash instanceof IButtonInteraction handler) {
+                        handler.getButtons().stream().filter(Objects::nonNull).forEach(b -> {
+                            LOGGER.debug(String.format("Registering button handler %s for command %s",
+                                b.getId(),
+                                slash.getName()));
+                            buttonHandlers.put(b.getId(), handler);
+                        });
                     }
                 });
-                globalCommands.forEach(cmd -> {
-                    if (cmd != null) {
-                        cmd.delete().queue();
-                        LOGGER.info(String.format("Queued deletion of global command %s", cmd.getName()));
-                    }
-                });
+                globalCommands.forEach(cmd -> cmd.delete().submit().thenRunAsync(
+                    () -> LOGGER.info(String.format("Deleted global command %s", cmd.getName()))
+                ));
                 guildCommands.forEach(
-                    (key, val) -> val.forEach(cmd -> {
-                        if (cmd != null) {
-                            cmd.delete().queue();
-                            LOGGER.info(String.format("Queued deletion of command %s for guild %d", cmd.getName(), key));
-                        }
-                    })
+                    (key, val) -> val.forEach(
+                        cmd -> cmd.delete().submit().thenRunAsync(
+                            () -> LOGGER.info(String.format("Deleted command %s for guild %d", cmd.getName(), key))
+                        )
+                    )
                 );
             }
         );
     }
 
-    private List<Object> collectSubscribedHandlers() {
+    @Nonnull
+    private List<ISlashInteraction> collectSubscribedHandlers() {
         Reflections reflections = new Reflections(InteractionCenter.class.getPackageName(), Scanners.FieldsAnnotated);
-        return reflections.getFieldsAnnotatedWith(SlashCommand.class)
-            .stream()
+        return reflections.getFieldsAnnotatedWith(SlashCommand.class).stream()
             .map(field -> {
                 try {
                     return field.get(null);
@@ -133,6 +118,21 @@ public class InteractionCenter extends ListenerAdapter {
                 }
             })
             .filter(Objects::nonNull)
+            .filter(o -> {
+                if (o instanceof ISlashInteraction) {
+                    return true;
+                }
+                else {
+                    LOGGER.warn(
+                        String.format(
+                            "An object of type %s is not an instance of ISlashInteraction. It will not be registered",
+                            o.getClass().getSimpleName()
+                        )
+                    );
+                    return false;
+                }
+            })
+            .map(o -> (ISlashInteraction)o )
             .toList();
     }
 
