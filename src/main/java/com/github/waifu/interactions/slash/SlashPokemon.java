@@ -40,7 +40,7 @@ public class SlashPokemon implements ISlashInteraction {
     }
 
     @Override
-    public void onCommand(SlashCommandInteractionEvent event) {
+    public void onCommand(@Nonnull SlashCommandInteractionEvent event) {
         event.deferReply().queue();
         new Thread(() -> {
             OptionMapping option = event.getOption("get");

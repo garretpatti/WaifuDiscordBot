@@ -20,6 +20,32 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
+/**
+ * The hub for all Waifu Discord interactions. This class hosts event listeners for
+ * SlashCommand and ButtonInteraction events, and passes these events along to
+ * registered handlers.<br>
+ * <br>
+ * To create a Slash Command for this bot, create a new class in
+ * {@link com.github.waifu.interactions} or a subpackage, and have this class implement
+ * {@link ISlashInteraction}. Refer to the documentation on how to create an effective
+ * implementation.<br>
+ * Within this new class, create and initialize a public static instance of your handler and
+ * annotate this field with {@link SlashCommand}.<br>
+ * To register a command, consider the following example
+ * <h3>Example</h3><pre>{@code
+ * public class SlashPing implements ISlashInteraction {
+ *    @SlashCommand
+ *    public static final SlashPing ping = new SlashPing();
+ *    // ISlashInteraction methods implemented below
+ * }
+ * }</pre>
+ * The instance <em>ping</em> satisfies the requirements of implementing {@link ISlashInteraction}
+ * and being annotated with {@link SlashCommand}. This object would be collected for registration.
+ *
+ * Currently, button interactions are only registered via registered slash interactions. Modals
+ * are currently not supported at all. A separate registration framework for Buttons and Modals
+ * will be implemented in a future update.
+ */
 public class InteractionCenter extends ListenerAdapter {
 
     public static final Logger LOGGER = LoggerFactory.getLogger(InteractionCenter.class);
@@ -104,6 +130,22 @@ public class InteractionCenter extends ListenerAdapter {
         );
     }
 
+    /**
+     * Collects all ISlashInteraction instances annotated with {@link SlashCommand} in
+     * the same package or subpackages of {@link InteractionCenter}. For example, in
+     * the following setup
+     * <pre>
+     * com.github.waifu
+     *    App.class
+     *    .interactions
+     *       InteractionCenter.class
+     *       .slash
+     *          SlashPing.class
+     *          SlashTenor.class
+     * </pre>
+     * @return a Nonnull List of {@link ISlashInteraction} handlers annotated
+     *      with {@link SlashCommand}
+     */
     @Nonnull
     private List<ISlashInteraction> collectSubscribedHandlers() {
         Reflections reflections = new Reflections(InteractionCenter.class.getPackageName(), Scanners.FieldsAnnotated);

@@ -36,7 +36,7 @@ public class SlashNh implements ISlashInteraction {
     }
 
     @Override
-    public void onCommand(SlashCommandInteractionEvent event) {
+    public void onCommand(@Nonnull SlashCommandInteractionEvent event) {
         LOGGER.debug("Replying to nh command.");
         TextChannel ch = (TextChannel) event.getChannel();
         if (ch.isNSFW()) {

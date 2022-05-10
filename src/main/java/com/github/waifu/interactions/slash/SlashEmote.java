@@ -44,7 +44,7 @@ public class SlashEmote implements ISlashInteraction, IButtonInteraction {
     }
 
     @Override
-    public void onCommand(SlashCommandInteractionEvent event) {
+    public void onCommand(@Nonnull SlashCommandInteractionEvent event) {
         if (event.isFromGuild()) {
             event.deferReply().queue();
             String name = event.getOption("alias", "", OptionMapping::getAsString).toLowerCase();

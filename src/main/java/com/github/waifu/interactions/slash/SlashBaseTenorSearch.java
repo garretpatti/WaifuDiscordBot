@@ -41,7 +41,7 @@ public class SlashBaseTenorSearch implements ISlashInteraction {
     public CommandData getCommand() { return Commands.slash(this.name, this.description); }
 
     @Override
-    public void onCommand(SlashCommandInteractionEvent event) {
+    public void onCommand(@Nonnull SlashCommandInteractionEvent event) {
         event.deferReply().queue();
         Consumer<Exception> error = e -> {
                 LOGGER.error("An error was thrown while retrieving a gif from Tenor.", e);

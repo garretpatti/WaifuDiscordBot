@@ -58,7 +58,7 @@ public class SlashMagic8 implements ISlashInteraction {
     }
 
     @Override
-    public void onCommand(SlashCommandInteractionEvent event) {
+    public void onCommand(@Nonnull SlashCommandInteractionEvent event) {
         event.reply(answers.get((int)(Math.random() * answers.size()))).queue();
     }
 }
