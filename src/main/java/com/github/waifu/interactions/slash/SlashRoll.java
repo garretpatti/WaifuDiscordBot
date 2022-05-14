@@ -43,7 +43,7 @@ public class SlashRoll implements ISlashInteraction {
         Member roller = event.getMember();
         long die = event.getOption("die", 1L, OptionMapping::getAsLong);
         long sides = event.getOption("sides", 6L, OptionMapping::getAsLong);
-        List<Long> rolls = new Random().longs(die, 3, sides).boxed().toList();
+        List<Long> rolls = new Random().longs(die, 1, sides).boxed().toList();
         String response = rolls.stream().map(Object::toString).collect(Collectors.joining(", "));
         EmbedBuilder embed = new EmbedBuilder().addField(
             String.format(
