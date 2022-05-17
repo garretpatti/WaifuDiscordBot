@@ -32,7 +32,6 @@ public class ChatCenter extends ListenerAdapter {
     static {
         try {
             loadMappings();
-            LOGGER.debug("Finished loading react-for-role mappings in ChatCenter");
         }
         catch (IOException ioe) {
             LOGGER.error("An error occurred while loading the react-for-role mapping file." +
@@ -47,6 +46,7 @@ public class ChatCenter extends ListenerAdapter {
     }
 
     public static void saveMappings() throws IOException {
+        LOGGER.info("Saving rfr mappings to save file.");
         JsonWriter writer = new JsonWriter(new FileWriter(RFR_PATH));
         writer.beginArray();
         for (Map.Entry<Long, Map<Long, Long>> e : gmrMap.entrySet()) {
@@ -66,9 +66,11 @@ public class ChatCenter extends ListenerAdapter {
             writer.endArray().endObject();
         }
         writer.endArray().close();
+        LOGGER.info("Mappings saved successfully to file.");
     }
 
     public static void loadMappings() throws IOException {
+        LOGGER.info("Beginning loading of react-for-role mappings from file.");
         File file = new File(RFR_PATH);
         if (!file.getParentFile().exists() && !file.getParentFile().mkdirs()) {
             throw new IOException("The rfr mapping directory could not be created.");
@@ -112,6 +114,7 @@ public class ChatCenter extends ListenerAdapter {
                 }
             );
         }
+        LOGGER.info("React-for-role mappings successfully loaded from file.");
     }
 
     public static void addMapping(@Nonnull Long guildID, @Nonnull Long msgID, @Nonnull Long roleID) {
@@ -127,6 +130,19 @@ public class ChatCenter extends ListenerAdapter {
                 mrMap.put(msgID, roleID);
             }
         }
+    }
+
+    public static boolean removeMapping(@Nonnull Long guildID, @Nonnull Long msgID, @Nonnull Long roleID) {
+        Objects.requireNonNull(guildID);
+        Objects.requireNonNull(msgID);
+        Objects.requireNonNull(roleID);
+        synchronized (gmrMap) {
+            Map<Long, Long> mrMap = gmrMap.get(guildID);
+            if (mrMap != null) {
+                return mrMap.remove(msgID, roleID);
+            }
+        }
+        return false;
     }
 
     @Nullable
@@ -156,7 +172,6 @@ public class ChatCenter extends ListenerAdapter {
             }
         }
     }
-
 
     @Override
     public void onMessageReactionRemove(@Nonnull MessageReactionRemoveEvent event) {

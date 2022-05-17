@@ -17,6 +17,10 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Spitfyre03
@@ -68,6 +72,16 @@ public class App extends ListenerAdapter {
 
 		bot.awaitReady();
 		cmdCntr.registerCommands(bot);
+		ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor();
+		Runnable runnable = () -> {
+			try {
+				ChatCenter.saveMappings();
+			}
+			catch (IOException ioe) {
+				LOGGER.error("An error occurred while trying to save the rfr mappings", ioe);
+			}
+		};
+		ScheduledFuture<?> future = service.scheduleAtFixedRate(runnable, 1, 10, TimeUnit.MINUTES);
 		new Thread(() -> {
 			Scanner input = new Scanner(System.in);
 			while (true) {
@@ -86,6 +100,14 @@ public class App extends ListenerAdapter {
 				}
 			}
 			input.close();
+			try {
+				service.shutdown();
+				future.cancel(false);
+				ChatCenter.saveMappings();
+			}
+			catch (IOException e) {
+				e.printStackTrace();
+			}
 		}, "App-Shutdown-Hook").start();
 	}
 }
