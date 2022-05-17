@@ -1,19 +1,17 @@
 package com.github.waifu;
 
+import com.github.waifu.chat.ChatCenter;
 import com.github.waifu.chat.ResponseCenter;
 import com.github.waifu.interactions.InteractionCenter;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
-import net.dv8tion.jda.api.entities.*;
-import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nonnull;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
@@ -57,7 +55,8 @@ public class App extends ListenerAdapter {
 		JDABuilder builder = JDABuilder.createLight(TOKEN, GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_MESSAGE_REACTIONS);
 		InteractionCenter cmdCntr = InteractionCenter.getSingleton();
 		ResponseCenter rspCntr = ResponseCenter.getSingleton();
-		builder.addEventListeners(singleton, rspCntr, cmdCntr);
+		ChatCenter chtCntr = ChatCenter.getInstance();
+		builder.addEventListeners(singleton, rspCntr, cmdCntr, chtCntr);
 		JDA bot;
 		try {
 			bot = builder.build();
@@ -66,12 +65,6 @@ public class App extends ListenerAdapter {
 			LOGGER.error("An invalid token was provided in secrets.json: " + TOKEN, e);
 			return;
 		}
-
-		Map<Long, Long> msgRoleMap = new HashMap<>();
-		msgRoleMap.put(945152664059121685L, 942646740845232148L);
-		msgRoleMap.put(945153619135709297L, 933660702294552586L);
-		msgRoleMap.put(945154695587041331L, 880713006181404692L);
-		reactionMap.put(879891493840617543L, msgRoleMap);
 
 		bot.awaitReady();
 		cmdCntr.registerCommands(bot);
@@ -94,24 +87,5 @@ public class App extends ListenerAdapter {
 			}
 			input.close();
 		}, "App-Shutdown-Hook").start();
-	}
-
-	@Override
-	public void onMessageReactionAdd(@Nonnull MessageReactionAddEvent event) {
-		if (event.isFromGuild()) {
-			Guild server = event.getGuild();
-			Map<Long, Long> msgRoleMap;
-			msgRoleMap = reactionMap.get(server.getIdLong());
-			if (msgRoleMap != null) {
-				Long roleLong = msgRoleMap.get(event.getMessageIdLong());
-				if (roleLong != null) {
-					Role role = server.getRoleById(roleLong);
-					if (role != null) {
-						event.retrieveMember().queue(member -> server.addRoleToMember(member, role).queue());
-					}
-				}
-			}
-			// else no react-for-role maps set up for this server
-		}
 	}
 }
