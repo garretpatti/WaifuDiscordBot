@@ -62,6 +62,10 @@ public class InteractionCenter extends ListenerAdapter {
     public void registerCommands(@Nonnull JDA bot) {
         LOGGER.info("Registering slash commands for Waifu");
         List<ISlashInteraction> commandsToRegister = collectSubscribedHandlers();
+        LOGGER.info(String.format(
+            "Commands collected for registration: %s",
+            commandsToRegister.stream().map(ISlashInteraction::getName).collect(Collectors.joining(", "))
+        ));
 
         CompletableFuture<List<Command>> globalCommandsFuture = bot.retrieveCommands().submit();
         Map<Long, CompletableFuture<List<Command>>> guildCommandsFuture = new HashMap<>();
