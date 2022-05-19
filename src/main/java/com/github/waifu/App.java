@@ -29,6 +29,7 @@ public class App extends ListenerAdapter {
 
 	public static String TOKEN;
 	public static final Logger LOGGER = LoggerFactory.getLogger(App.class);
+	private static final ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor();
 	private static final App singleton = new App();
 
 	// Guild, Message, Role
@@ -72,16 +73,7 @@ public class App extends ListenerAdapter {
 
 		bot.awaitReady();
 		cmdCntr.registerCommands(bot);
-		ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor();
-		Runnable runnable = () -> {
-			try {
-				ChatCenter.saveMappings();
-			}
-			catch (IOException ioe) {
-				LOGGER.error("An error occurred while trying to save the rfr mappings", ioe);
-			}
-		};
-		ScheduledFuture<?> future = service.scheduleAtFixedRate(runnable, 1, 10, TimeUnit.MINUTES);
+		ScheduledFuture<?> future = service.scheduleAtFixedRate(ChatCenter::saveMappings, 1, 10, TimeUnit.MINUTES);
 		new Thread(() -> {
 			Scanner input = new Scanner(System.in);
 			while (true) {
@@ -100,14 +92,9 @@ public class App extends ListenerAdapter {
 				}
 			}
 			input.close();
-			try {
-				service.shutdown();
-				future.cancel(false);
-				ChatCenter.saveMappings();
-			}
-			catch (IOException e) {
-				e.printStackTrace();
-			}
+			service.shutdown();
+			future.cancel(false);
+			ChatCenter.saveMappings();
 		}, "App-Shutdown-Hook").start();
 	}
 }

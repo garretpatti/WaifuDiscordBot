@@ -1,12 +1,16 @@
 package com.github.waifu.chat;
 
-import com.google.gson.*;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.google.gson.stream.JsonWriter;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionRemoveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.internal.utils.Checks;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,9 +21,9 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ChatCenter extends ListenerAdapter {
@@ -45,28 +49,41 @@ public class ChatCenter extends ListenerAdapter {
         return instance;
     }
 
-    public static void saveMappings() throws IOException {
-        LOGGER.info("Saving rfr mappings to save file.");
-        JsonWriter writer = new JsonWriter(new FileWriter(RFR_PATH));
-        writer.beginArray();
-        for (Map.Entry<Long, Map<Long, Long>> e : gmrMap.entrySet()) {
-            Long guildID = e.getKey();
-            Map<Long, Long> mappings = e.getValue();
-            writer.beginObject();
-            writer.name("guild").value(guildID);
-            writer.name("entries").beginArray();
-            for (Map.Entry<Long, Long> entry : mappings.entrySet()) {
-                Long msgID = entry.getKey();
-                Long roleID = entry.getValue();
-                writer.beginObject();
-                writer.name("message").value(msgID);
-                writer.name("role").value(roleID);
-                writer.endObject();
+    public static void saveMappings() {
+        JsonArray mappingsMap = new JsonArray();
+        for (Map.Entry<Long, Map<Long, Long>> e : gmrMap.entrySet().stream().sorted(Map.Entry.comparingByKey()).toList()) {
+            JsonObject guildEntry = new JsonObject();
+            mappingsMap.add(guildEntry);
+            guildEntry.addProperty("guild", e.getKey());
+            JsonArray mappingEntries = new JsonArray();
+            guildEntry.add("entries", mappingEntries);
+            Map<Long, Long> guildMappings = e.getValue();
+            for (Map.Entry<Long, Long> entry : guildMappings.entrySet().stream().sorted(Map.Entry.comparingByKey()).toList()) {
+                JsonObject mapEntry = new JsonObject();
+                mapEntry.addProperty("message", entry.getKey());
+                mapEntry.addProperty("role", entry.getValue());
+                mappingEntries.add(mapEntry);
             }
-            writer.endArray().endObject();
         }
-        writer.endArray().close();
-        LOGGER.info("Mappings saved successfully to file.");
+        JsonArray fileArray = null;
+        try (FileReader reader = new FileReader(RFR_PATH)) {
+            fileArray = JsonParser.parseReader(reader).getAsJsonArray();
+        }
+        // Ignored because a malformed json should be saved over
+        catch (Exception ignored) {}
+
+        try {
+            if (!mappingsMap.equals(fileArray)) {
+                FileWriter writer = new FileWriter(RFR_PATH);
+                writer.write(mappingsMap.toString());
+                writer.flush();
+                writer.close();
+                LOGGER.info("Mappings saved successfully to file.");
+            }
+        }
+        catch (IOException ioe) {
+            LOGGER.error("An error occurred while trying to save the rfr mappings", ioe);
+        }
     }
 
     public static void loadMappings() throws IOException {
@@ -118,9 +135,9 @@ public class ChatCenter extends ListenerAdapter {
     }
 
     public static void addMapping(@Nonnull Long guildID, @Nonnull Long msgID, @Nonnull Long roleID) {
-        Objects.requireNonNull(guildID);
-        Objects.requireNonNull(msgID);
-        Objects.requireNonNull(roleID);
+        Checks.notNull(guildID, "Guild ID");
+        Checks.notNull(msgID, "Message ID");
+        Checks.notNull(roleID, "Role ID");
         synchronized (gmrMap) {
             Map<Long, Long> mrMap = gmrMap.get(guildID);
             if (mrMap == null) {
@@ -133,9 +150,9 @@ public class ChatCenter extends ListenerAdapter {
     }
 
     public static boolean removeMapping(@Nonnull Long guildID, @Nonnull Long msgID, @Nonnull Long roleID) {
-        Objects.requireNonNull(guildID);
-        Objects.requireNonNull(msgID);
-        Objects.requireNonNull(roleID);
+        Checks.notNull(guildID, "Guild ID");
+        Checks.notNull(msgID, "Message ID");
+        Checks.notNull(roleID, "Role ID");
         synchronized (gmrMap) {
             Map<Long, Long> mrMap = gmrMap.get(guildID);
             if (mrMap != null) {
@@ -147,8 +164,8 @@ public class ChatCenter extends ListenerAdapter {
 
     @Nullable
     public static Long getMapping(@Nonnull Long guildID, @Nonnull Long msgID) {
-        Objects.requireNonNull(guildID);
-        Objects.requireNonNull(msgID);
+        Checks.notNull(guildID, "Guild ID");
+        Checks.notNull(msgID, "Message ID");
         synchronized (gmrMap) {
             Map<Long, Long> mrMap = gmrMap.get(guildID);
             return mrMap == null ? null : mrMap.get(msgID);

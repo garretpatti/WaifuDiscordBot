@@ -8,4 +8,5 @@ target/
 
 *.bat
 
+assets/
 src/main/resources/secrets.json
