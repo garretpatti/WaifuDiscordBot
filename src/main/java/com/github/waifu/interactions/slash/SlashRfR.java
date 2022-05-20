@@ -1,9 +1,11 @@
 package com.github.waifu.interactions.slash;
 
 import com.github.waifu.chat.ChatCenter;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
@@ -33,13 +35,15 @@ public class SlashRfR implements ISlashInteraction {
             .addSubcommands(
                 new SubcommandData("add", "Add a message->role mapping, or change a pre-existing one")
                     .addOptions(
+                        new OptionData(OptionType.CHANNEL, "channel", "The channel the message is in", true),
                         new OptionData(OptionType.STRING, "msg_id", "The message numeric ID.", true),
-                        new OptionData(OptionType.ROLE, "role_id", "The role to map.", true)
+                        new OptionData(OptionType.ROLE, "role", "The role to map.", true)
                     ),
                 new SubcommandData("rm", "Remove a message->role mapping.")
                     .addOptions(
+                        new OptionData(OptionType.CHANNEL, "channel", "The channel the message is in", true),
                         new OptionData(OptionType.STRING, "msg_id", "The message numeric ID.", true),
-                        new OptionData(OptionType.ROLE, "role_id", "The role to un-map.", true)
+                        new OptionData(OptionType.ROLE, "role", "The role to un-map.", true)
                     )
             );
     }
@@ -51,55 +55,68 @@ public class SlashRfR implements ISlashInteraction {
 
     @Override
     public void onCommand(@Nonnull SlashCommandInteractionEvent event) {
+        event.deferReply().queue();
         if (event.isFromGuild()) {
             Long guildID = event.getGuild().getIdLong();
             Member member = event.getMember();
             if (member != null && member.hasPermission(Permission.MANAGE_ROLES)) {
-                event.deferReply().queue();
                 String sub = event.getSubcommandName();
+                TextChannel channel = event.getOption("channel", OptionMapping::getAsTextChannel);
+                Role role = event.getOption("role", OptionMapping::getAsRole);
                 long msgID = event.getOption("msg_id", 0L, OptionMapping::getAsLong);
-                Role role = event.getOption("role_id", OptionMapping::getAsRole);
-                if ("add".equals(sub)) {
-                    // TODO check message exists too
-                    if (role != null && member.canInteract(role)) {
-                        ChatCenter.addMapping(guildID, msgID, role.getIdLong());
-                        event.getHook()
-                            .sendMessage("Mapping was successfully added for role " + role.getName())
-                            .queue();
-                    }
-                    else {
-                        event.getHook()
-                            .sendMessage("You can't add a mapping for a role equal or higher than yourself.")
-                            .queue();
-                    }
-                }
-                else if ("rm".equals(sub)) {
-                    // TODO check message exists too
-                    if (role != null && member.canInteract(role)) {
-                        if (ChatCenter.removeMapping(guildID, msgID, role.getIdLong())) {
-                            event.getHook()
-                                .sendMessage("Mapping was successfully removed for role " + role.getName())
-                                .queue();
+                channel.retrieveMessageById(msgID).queue(
+                    msg -> {
+                        if ("add".equals(sub)) {
+                            // TODO check message exists too
+                            if (role != null && member.canInteract(role)) {
+                                ChatCenter.addMapping(guildID, msgID, role.getIdLong());
+                                event.getHook()
+                                    .sendMessage("Mapping was successfully added for role " + role.getName())
+                                    .addEmbeds(new EmbedBuilder().addField(msg.getAuthor().getName(), msg.getContentDisplay(), true).build())
+                                    .queue();
+                            }
+                            else {
+                                event.getHook()
+                                    .sendMessage("You can't add a mapping for a role equal or higher than yourself.")
+                                    .queue();
+                            }
                         }
-                        else {
-                            event.getHook()
-                                .sendMessage("The message or role could not be found with those IDs")
-                                .queue();
+                        else if ("rm".equals(sub)) {
+                            // TODO check message exists too
+                            if (role != null && member.canInteract(role)) {
+                                if (ChatCenter.removeMapping(guildID, msgID, role.getIdLong())) {
+                                    event.getHook()
+                                        .sendMessage("Mapping was successfully removed for role " + role.getName())
+                                        .addEmbeds(new EmbedBuilder().addField(msg.getAuthor().getName(), msg.getContentDisplay(), true).build())
+                                        .queue();
+                                }
+                                else {
+                                    event.getHook()
+                                        .sendMessage("The message or role could not be found with those IDs")
+                                        .queue();
+                                }
+                            }
+                            else {
+                                event.getHook()
+                                    .sendMessage("You can't change a mapping for a role equal or higher than yourself.")
+                                    .queue();
+                            }
                         }
-                    }
-                    else {
-                        event.getHook()
-                            .sendMessage("You can't change a mapping for a role equal or higher than yourself.")
-                            .queue();
-                    }
-                }
+                    },
+                    throwable -> event.getHook().sendMessage("No message was found for that ID").queue()
+                );
             }
             else {
-                event.reply("You don't have permission to use this command.").setEphemeral(true).queue();
+                event.getHook()
+                    .sendMessage("You don't have permission to use this command.")
+                    .setEphemeral(true)
+                    .queue();
             }
         }
         else {
-            event.reply("You can't use this here.").queue();
+            event.getHook()
+                .sendMessage("You can't use this here.")
+                .queue();
         }
     }
 }
