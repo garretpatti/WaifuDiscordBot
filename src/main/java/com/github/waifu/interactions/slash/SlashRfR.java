@@ -15,7 +15,6 @@ import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 
 import javax.annotation.Nonnull;
-import java.util.List;
 
 public class SlashRfR implements ISlashInteraction {
 
@@ -46,11 +45,6 @@ public class SlashRfR implements ISlashInteraction {
                         new OptionData(OptionType.ROLE, "role", "The role to un-map.", true)
                     )
             );
-    }
-
-    @Override
-    public List<Long> getGuilds() {
-        return List.of(879891493840617543L);
     }
 
     @Override
