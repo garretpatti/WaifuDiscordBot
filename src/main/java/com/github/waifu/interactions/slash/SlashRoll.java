@@ -21,14 +21,8 @@ public class SlashRoll implements ISlashInteraction {
 
     @Nonnull
     @Override
-    public String getName() {
-        return "roll";
-    }
-
-    @Nonnull
-    @Override
     public CommandData getCommand() {
-        return Commands.slash(this.getName(), "Hope for a nat 20!")
+        return Commands.slash("roll", "Hope for a nat 20!")
             .addOptions(
                 new OptionData(OptionType.INTEGER, "die", "How many die to roll. Default 1, max 10.")
                     .setRequiredRange(1, 10),

@@ -23,14 +23,8 @@ public class SlashRfR implements ISlashInteraction {
 
     @Nonnull
     @Override
-    public String getName() {
-        return "rfr";
-    }
-
-    @Nonnull
-    @Override
     public CommandData getCommand() {
-        return Commands.slash(this.getName(), "React-for-role mapping admin command.")
+        return Commands.slash("rfr", "React-for-role mapping admin command.")
             .addSubcommands(
                 new SubcommandData("add", "Add a message->role mapping, or change a pre-existing one")
                     .addOptions(

@@ -17,24 +17,20 @@ public class SlashBasicResponse implements ISlashInteraction {
         "https://discord.com/api/oauth2/authorize?client_id=933960413534617611&permissions=1574075624529&scope=bot%20applications.commands",
         "Get the invite link for this bot");
 
-    private final String command;
+    private final String name;
     private final String response;
     private final String description;
 
-    public SlashBasicResponse(String command, String response, String description) {
-        this.command = command;
+    public SlashBasicResponse(String name, String response, String description) {
+        this.name = name;
         this.response = response;
         this.description = description;
     }
 
     @Nonnull
     @Override
-    public String getName() { return this.command; }
-
-    @Nonnull
-    @Override
     public CommandData getCommand() {
-        return Commands.slash(this.getName(), this.description);
+        return Commands.slash(this.name, this.description);
     }
 
     @Override

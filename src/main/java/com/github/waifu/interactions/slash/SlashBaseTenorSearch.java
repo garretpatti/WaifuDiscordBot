@@ -34,10 +34,6 @@ public class SlashBaseTenorSearch implements ISlashInteraction {
 
     @Nonnull
     @Override
-    public String getName() { return this.name; }
-
-    @Nonnull
-    @Override
     public CommandData getCommand() { return Commands.slash(this.name, this.description); }
 
     @Override

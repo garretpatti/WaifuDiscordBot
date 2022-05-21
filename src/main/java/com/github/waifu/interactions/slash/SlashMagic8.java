@@ -46,14 +46,8 @@ public class SlashMagic8 implements ISlashInteraction {
 
     @Nonnull
     @Override
-    public String getName() {
-        return "magic8";
-    }
-
-    @Nonnull
-    @Override
     public CommandData getCommand() {
-        return Commands.slash(this.getName(), "Peer into the depths of your destiny.")
+        return Commands.slash("magic8", "Peer into the depths of your destiny.")
                 .addOption(OptionType.STRING, "inquiry", "What do you want to ask", true);
     }
 

@@ -30,12 +30,8 @@ public class SlashPokemon implements ISlashInteraction {
 
     @Nonnull
     @Override
-    public String getName() { return "pokemon"; }
-
-    @Nonnull
-    @Override
     public CommandData getCommand() {
-        return Commands.slash(this.getName(), "Who's that Pokemon?")
+        return Commands.slash("pokemon", "Who's that Pokemon?")
             .addOption(OptionType.STRING, "get", "Get a specific pokemon by name or number", false);
     }
 

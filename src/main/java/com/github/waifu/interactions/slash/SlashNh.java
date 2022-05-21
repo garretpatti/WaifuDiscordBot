@@ -22,12 +22,8 @@ public class SlashNh implements ISlashInteraction {
 
     @Nonnull
     @Override
-    public String getName() { return "nh"; }
-
-    @Nonnull
-    @Override
     public CommandData getCommand() {
-        return Commands.slash(this.getName(), "Get the quicklink for an nh extension.")
+        return Commands.slash("nh", "Get the quicklink for an nh extension.")
             .setDefaultEnabled(false)
             .addOptions(
                 new OptionData(OptionType.INTEGER, "extension", "The extension to get")

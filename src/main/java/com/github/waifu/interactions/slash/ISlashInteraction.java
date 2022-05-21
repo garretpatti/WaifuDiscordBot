@@ -17,23 +17,12 @@ import java.util.List;
 public interface ISlashInteraction {
 
     /**
-     * @return the name ID that this handler will use to register to Discord
-     *  and subscribe to usage of this command via the client.<br>
-     *  <b>This value must be nonnull, non-empty, and unique.</b>
-     */
-    @Nonnull
-    String getName();
-
-    /**
      * The command structure object that is submitted to Discord when registered.
      * This object determines how your command will behave in the Discord client.
-     * Refer to the docs in {@link CommandData} and
-     * <a href="https://discord.com/developers/docs/interactions/application-commands">here</a>
-     * on how to make advanced configurations with these.<br><br>
+     * Refer to the docs in {@link CommandData} and on
+     * <a href="https://discord.com/developers/docs/interactions/application-commands">Discord</a>
+     * to learn how to make advanced configurations with these.
      *
-     * <b>NOTE:</b> To ensure your command is properly registered and handled by
-     * InteractionCenter, consider initializing your CommandData object with
-     * {@link #getName()} as the name parameter.
      * @return a nonnull CommandData object to be registered to Discord.
      */
     @Nonnull
@@ -61,9 +50,9 @@ public interface ISlashInteraction {
      * processing arguments and behaving in whatever way you wish for this command
      * to.
      *
-     * @param event the SlashCommandInteractionEvent fired by Discord for this
+     * @param event the {@link SlashCommandInteractionEvent} fired by Discord for this
      *          interaction. This is never null, and is passed to your handler
-     *          via the name supplied in {@link #getName()}
+     *          by name from the supplied {@link CommandData} object
      */
     void onCommand(@Nonnull SlashCommandInteractionEvent event);
 }

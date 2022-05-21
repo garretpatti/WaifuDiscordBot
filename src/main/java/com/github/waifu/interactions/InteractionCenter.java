@@ -9,7 +9,6 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.Command;
-import net.dv8tion.jda.internal.utils.Checks;
 import org.reflections.Reflections;
 import org.reflections.scanners.Scanners;
 import org.slf4j.Logger;
@@ -64,7 +63,7 @@ public class InteractionCenter extends ListenerAdapter {
         List<ISlashInteraction> commandsToRegister = collectSubscribedHandlers();
         LOGGER.info(String.format(
             "Commands collected for registration: %s",
-            commandsToRegister.stream().map(ISlashInteraction::getName).collect(Collectors.joining(", "))
+            commandsToRegister.stream().map(interaction -> interaction.getCommand().getName()).collect(Collectors.joining(", "))
         ));
 
         CompletableFuture<List<Command>> globalCommandsFuture = bot.retrieveCommands().submit();
@@ -76,46 +75,32 @@ public class InteractionCenter extends ListenerAdapter {
                 Map<Long, List<Command>> guildCommands = guildCommandsFuture
                     .entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, v -> v.getValue().join()));
                 commandsToRegister.forEach(slash -> {
-                    // TODO Discord uses the crazy regex as the naming rule for commands
-                    // ^[-_\p{L}\p{N}\p{sc=Deva}\p{sc=Thai}]{1,32}$
-                    try {
-                        Checks.notBlank(slash.getName(), "Command name");
-                    }
-                    catch (IllegalStateException e) {
-                        LOGGER.error(
-                            String.format(
-                                "A command of Type %s with no name was provided. It will not be registered.",
-                                slash.getClass().getSimpleName()),
-                            e
-                        );
-                        return;
-                    }
-
+                    String name = slash.getCommand().getName();
                     List<Long> guildsToRegister = slash.getGuilds();
                     if (Optional.ofNullable(guildsToRegister).orElse(List.of()).isEmpty()) {
                         bot.upsertCommand(slash.getCommand()).queue(cmd ->
-                            LOGGER.debug(String.format("Global command %s queued to register", slash.getName()))
+                            LOGGER.debug(String.format("Global command %s queued to register", name))
                         );
-                        globalCommands.removeIf(gCmd -> gCmd.getName().equals(slash.getName()));
+                        globalCommands.removeIf(gCmd -> gCmd.getName().equals(name));
                     }
                     else {
                         guildsToRegister.forEach(g -> {
                             Guild guildToRegister = bot.getGuildById(g);
                             if (guildToRegister != null) {
                                 guildToRegister.upsertCommand(slash.getCommand()).queue(cmd ->
-                                    LOGGER.debug(String.format("Command %s queued to register for guild %d", slash.getName(), g))
+                                    LOGGER.debug(String.format("Command %s queued to register for guild %d", name, g))
                                 );
-                                guildCommands.get(g).removeIf(gCmd -> gCmd.getName().equals(slash.getName()));
+                                guildCommands.get(g).removeIf(gCmd -> gCmd.getName().equals(name));
                             }
                         });
                     }
-                    slashHandlers.put(slash.getName(), slash);
+                    slashHandlers.put(name, slash);
 
                     if (slash instanceof IButtonInteraction handler) {
                         handler.getButtons().stream().filter(Objects::nonNull).forEach(b -> {
                             LOGGER.debug(String.format("Registering button handler %s for command %s",
                                 b.getId(),
-                                slash.getName()));
+                                name));
                             buttonHandlers.put(b.getId(), handler);
                         });
                     }

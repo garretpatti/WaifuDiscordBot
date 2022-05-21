@@ -30,12 +30,8 @@ public class SlashEmote implements ISlashInteraction, IButtonInteraction {
 
     @Nonnull
     @Override
-    public String getName() { return "emote"; }
-
-    @Nonnull
-    @Override
     public CommandData getCommand() {
-        return Commands.slash(this.getName(), "Emote manager")
+        return Commands.slash("emote", "Emote manager")
             .addSubcommands(
                 new SubcommandData("add", "Add an emote")
                     .addOption(OptionType.STRING, "alias", "The name for the new emote", true)
