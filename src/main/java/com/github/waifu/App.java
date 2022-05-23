@@ -7,15 +7,14 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
-import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.GatewayIntent;
+import net.dv8tion.jda.internal.utils.Checks;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.security.auth.login.LoginException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Scanner;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -25,35 +24,26 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author Spitfyre03
  */
-public class App extends ListenerAdapter {
+public class App {
 
 	public static String TOKEN;
-	public static final Logger LOGGER = LoggerFactory.getLogger(App.class);
-	private static final ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor();
-	private static final App singleton = new App();
-
-	// Guild, Message, Role
-	public static final Map<Long, Map<Long, Long>> reactionMap = new HashMap<>();
+	private static final Logger LOGGER = LoggerFactory.getLogger(App.class);
+	private static final ScheduledExecutorService scheduledExecutor = Executors.newSingleThreadScheduledExecutor();
+	private static ScheduledFuture<?> mappingSaver;
 
 	private App() {}
 
-	public static App getSingleton() { return singleton; }
-
-	public static void main(String[] args) throws InterruptedException {
+	public static void main(String[] args) throws InterruptedException, LoginException {
 		try {
 			LOGGER.info("Loading JDA Application token.");
 			String path = App.class.getResource("/secrets.json").getPath();
 			JsonObject secretsTree = JsonParser.parseReader(new FileReader(path)).getAsJsonObject();
 			TOKEN = secretsTree.get("bot_token").getAsString();
-			if (TOKEN.equals("")) { throw new IllegalStateException("Token bot_token value is empty"); }
-			LOGGER.info("JDA Bot token retrieved. Logging in now.");
+			Checks.notBlank(TOKEN, "bot_token");
+			LOGGER.info("JDA Bot token successfully retrieved.");
 		}
 		catch (IOException ioe) {
 			LOGGER.error("There was an error while reading the token file.", ioe);
-			return;
-		}
-		catch (IllegalStateException | NullPointerException e) {
-			LOGGER.error("The secrets file must contain an entry for bot_token", e);
 			return;
 		}
 
@@ -61,19 +51,12 @@ public class App extends ListenerAdapter {
 		InteractionCenter cmdCntr = InteractionCenter.getSingleton();
 		ResponseCenter rspCntr = ResponseCenter.getSingleton();
 		ChatCenter chtCntr = ChatCenter.getInstance();
-		builder.addEventListeners(singleton, rspCntr, cmdCntr, chtCntr);
-		JDA bot;
-		try {
-			bot = builder.build();
-		}
-		catch (Exception e) {
-			LOGGER.error("An invalid token was provided in secrets.json: " + TOKEN, e);
-			return;
-		}
-
+		mappingSaver = scheduledExecutor.scheduleAtFixedRate(ChatCenter::saveMappings, 1, 10, TimeUnit.MINUTES);
+		builder.addEventListeners(rspCntr, cmdCntr, chtCntr);
+		JDA bot = builder.build();
 		bot.awaitReady();
+
 		cmdCntr.registerCommands(bot);
-		ScheduledFuture<?> future = service.scheduleAtFixedRate(ChatCenter::saveMappings, 1, 10, TimeUnit.MINUTES);
 		new Thread(() -> {
 			Scanner input = new Scanner(System.in);
 			while (true) {
@@ -92,8 +75,8 @@ public class App extends ListenerAdapter {
 				}
 			}
 			input.close();
-			service.shutdown();
-			future.cancel(false);
+			scheduledExecutor.shutdown();
+			mappingSaver.cancel(false);
 			ChatCenter.saveMappings();
 		}, "App-Shutdown-Hook").start();
 	}
