@@ -9,8 +9,6 @@ import javax.annotation.Nonnull;
 public class SlashBasicResponse implements ISlashInteraction {
 
     @SlashCommand
-    public static final SlashBasicResponse ping = new SlashBasicResponse("ping", "Pong!", "Ping test");
-    @SlashCommand
     public static final SlashBasicResponse bing = new SlashBasicResponse("bing", "Bong!", "Bing bong!");
     @SlashCommand
     public static final SlashBasicResponse oauth2 = new SlashBasicResponse("oauth2",
