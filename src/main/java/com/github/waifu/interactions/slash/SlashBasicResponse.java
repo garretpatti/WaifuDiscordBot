@@ -14,6 +14,10 @@ public class SlashBasicResponse implements ISlashInteraction {
     public static final SlashBasicResponse oauth2 = new SlashBasicResponse("oauth2",
         "https://discord.com/api/oauth2/authorize?client_id=933960413534617611&permissions=1574075624529&scope=bot%20applications.commands",
         "Get the invite link for this bot");
+    @SlashCommand
+    public static final SlashBasicResponse impact = new SlashBasicResponse("impact",
+        "Impact Statement:\n• How many associates are impacted and what can they not do?\n• How many TOTAL associates are working this shift including ALL areas of the site?\n• Is there any customer impact?\n• Is there a workaround?",
+        "Operations-impacting incident statement");
 
     private final String name;
     private final String response;
