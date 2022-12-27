@@ -9,18 +9,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.List;
 import java.util.function.Consumer;
 
 public class SlashBaseTenorSearch implements ISlashInteraction {
 
     public static final Logger LOGGER = LoggerFactory.getLogger(SlashBaseTenorSearch.class);
 
-    @SlashCommand
-    public static final SlashBaseTenorSearch smashing = new SlashBaseTenorSearch("smashing", "Smashing!", "nigel thornberry smashing");
-    @SlashCommand
-    public static final SlashBaseTenorSearch cagemebro = new SlashBaseTenorSearch("cagemebro", "I'm going to steal the Declaration of Independence", "nick cage");
-    @SlashCommand
-    public static final SlashBaseTenorSearch deuces = new SlashBaseTenorSearch("deuces", "Peace bitches", "deuces");
+    @SlashCommand public static final SlashBaseTenorSearch smashing = new SlashBaseTenorSearch("smashing", "Smashing!", "nigel thornberry smashing");
+    @SlashCommand public static final SlashBaseTenorSearch cagemebro = new SlashBaseTenorSearch("cagemebro", "I'm going to steal the Declaration of Independence", "nick cage");
+    @SlashCommand public static final SlashBaseTenorSearch deuces = new SlashBaseTenorSearch("deuces", "Peace bitches", "deuces");
+    @SlashCommand public static final SlashBaseTenorSearch bruh = new SlashBaseTenorSearch("bruh", "Bruh moment, bruh", "bruh");
 
     private final String name;
     private final String description;
