@@ -65,15 +65,23 @@ public class ChatCenter extends ListenerAdapter {
             }
         }
         JsonArray fileArray = null;
-        try (FileReader reader = new FileReader(RFR_PATH)) {
+        File file = new File(RFR_PATH);
+        try (FileReader reader = new FileReader(file)) {
             fileArray = JsonParser.parseReader(reader).getAsJsonArray();
         }
         // Ignored because a malformed json should be saved over
+        // And a new file should be created if one doesn't exist
         catch (Exception ignored) {}
 
         try {
+            if (!file.getParentFile().exists() && !file.getParentFile().mkdirs()) {
+                throw new IOException("The rfr mapping directory could not be created.");
+            }
+            if (!file.exists() && !file.createNewFile()) {
+                throw new IOException("The rfr mapping file could not be created.");
+            }
             if (!mappingsMap.equals(fileArray)) {
-                FileWriter writer = new FileWriter(RFR_PATH);
+                FileWriter writer = new FileWriter(file);
                 writer.write(mappingsMap.toString());
                 writer.flush();
                 writer.close();
@@ -86,51 +94,50 @@ public class ChatCenter extends ListenerAdapter {
     }
 
     public static void loadMappings() throws IOException {
-        LOGGER.info("Beginning loading of react-for-role mappings from file.");
         File file = new File(RFR_PATH);
-        if (!file.getParentFile().exists() && !file.getParentFile().mkdirs()) {
-            throw new IOException("The rfr mapping directory could not be created.");
-        }
-        if (!file.exists() && !file.createNewFile()) {
-            throw new IOException("The rfr mapping file could not be created.");
-        }
-
-        FileReader reader = new FileReader(file);
-        JsonElement fileObj = JsonParser.parseReader(reader);
-        if (!fileObj.isJsonArray()) {
-            new JsonWriter(new FileWriter(file)).beginArray().endArray().close();
-            fileObj = JsonParser.parseReader(reader);
-        }
-        JsonArray mappings = fileObj.getAsJsonArray();
-        synchronized (gmrMap) {
-            mappings.forEach(
-                // For each object, load all the mappings. Continues to next entry if guild is missing or entries array is empty
-                objEntry -> {
-                    if (!objEntry.isJsonObject()) return;
-                    JsonObject obj = objEntry.getAsJsonObject();
-                    if (!obj.has("guild") || !obj.get("guild").isJsonPrimitive()) return;
-                    long guildID = obj.get("guild").getAsLong();
-                    if (!obj.has("entries") || obj.get("entries").getAsJsonArray().isEmpty()) {
-                        LOGGER.warn(String.format("No mappings were provided for guild %d. This entry will be skipped.", guildID));
-                        return;
-                    }
-                    obj.get("entries").getAsJsonArray().forEach(
-                        mappingElement -> {
-                            JsonObject mapping = mappingElement.getAsJsonObject();
-                            if (!(mapping.has("message") && mapping.has("role"))) {
-                                LOGGER.warn("The property for message or role was missing from an entry. This will be skipped");
+        LOGGER.info("Loading react-for-role mappings from resource file");
+        if (file.exists()) {
+            LOGGER.info("RFR resource file located at " + file.getAbsolutePath());
+            FileReader reader = new FileReader(file);
+            JsonElement fileObj = JsonParser.parseReader(reader);
+            if (!fileObj.isJsonArray()) {
+                new JsonWriter(new FileWriter(file)).beginArray().endArray().close();
+                fileObj = JsonParser.parseReader(reader);
+            }
+            JsonArray mappings = fileObj.getAsJsonArray();
+            synchronized (gmrMap) {
+                mappings.forEach(
+                        // For each object, load all the mappings. Continues to next entry if guild is missing or entries array is empty
+                        objEntry -> {
+                            if (!objEntry.isJsonObject()) return;
+                            JsonObject obj = objEntry.getAsJsonObject();
+                            if (!obj.has("guild") || !obj.get("guild").isJsonPrimitive()) return;
+                            long guildID = obj.get("guild").getAsLong();
+                            if (!obj.has("entries") || obj.get("entries").getAsJsonArray().isEmpty()) {
+                                LOGGER.warn(String.format("No mappings were provided for guild %d. This entry will be skipped.", guildID));
+                                return;
                             }
-                            else {
-                                long messageID = mapping.get("message").getAsLong();
-                                long roleID = mapping.get("role").getAsLong();
-                                addMapping(guildID, messageID, roleID);
-                            }
+                            obj.get("entries").getAsJsonArray().forEach(
+                                    mappingElement -> {
+                                        JsonObject mapping = mappingElement.getAsJsonObject();
+                                        if (!(mapping.has("message") && mapping.has("role"))) {
+                                            LOGGER.warn("The property for message or role was missing from an entry. This will be skipped");
+                                        }
+                                        else {
+                                            long messageID = mapping.get("message").getAsLong();
+                                            long roleID = mapping.get("role").getAsLong();
+                                            addMapping(guildID, messageID, roleID);
+                                        }
+                                    }
+                            );
                         }
-                    );
-                }
-            );
+                );
+            }
+            LOGGER.info("React-for-role mappings successfully loaded from file.");
         }
-        LOGGER.info("React-for-role mappings successfully loaded from file.");
+        else {
+            LOGGER.warn("No rfr file was found at " + file.getAbsolutePath());
+        }
     }
 
     public static void addMapping(@Nonnull Long guildID, @Nonnull Long msgID, @Nonnull Long roleID) {

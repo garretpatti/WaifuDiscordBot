@@ -9,4 +9,4 @@ target/
 *.bat
 
 assets/
-src/main/resources/secrets.json
+src/main/resources/assets/secrets.json

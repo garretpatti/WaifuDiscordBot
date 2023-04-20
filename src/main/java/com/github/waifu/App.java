@@ -13,8 +13,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.security.auth.login.LoginException;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Scanner;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -36,14 +36,15 @@ public class App {
 	public static void main(String[] args) throws InterruptedException, LoginException {
 		try {
 			LOGGER.info("Loading JDA Application token.");
-			String path = App.class.getResource("/secrets.json").getPath();
-			JsonObject secretsTree = JsonParser.parseReader(new FileReader(path)).getAsJsonObject();
+			// TODO copy token to assets to make key configurable
+			InputStream secrets = App.class.getResourceAsStream("/assets/secrets.json");
+			JsonObject secretsTree = JsonParser.parseReader(new InputStreamReader(secrets)).getAsJsonObject();
 			TOKEN = secretsTree.get("bot_token").getAsString();
 			Checks.notBlank(TOKEN, "bot_token");
 			LOGGER.info("JDA Bot token successfully retrieved.");
 		}
-		catch (IOException ioe) {
-			LOGGER.error("There was an error while reading the token file.", ioe);
+		catch (Exception e) {
+			LOGGER.error("There was an error while reading the token file.", e);
 			return;
 		}
 
