@@ -9,4 +9,5 @@ target/
 *.bat
 
 assets/
+logs/
 src/main/resources/assets/secrets.json
