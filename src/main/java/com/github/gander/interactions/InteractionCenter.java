@@ -1,8 +1,8 @@
-package com.github.waifu.interactions;
+package com.github.gander.interactions;
 
-import com.github.waifu.interactions.buttons.IButtonInteraction;
-import com.github.waifu.interactions.slash.ISlashInteraction;
-import com.github.waifu.interactions.slash.SlashCommand;
+import com.github.gander.interactions.buttons.IButtonInteraction;
+import com.github.gander.interactions.slash.ISlashInteraction;
+import com.github.gander.interactions.slash.SlashCommand;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
  * registered handlers.<br>
  * <br>
  * To create a Slash Command for this bot, create a new class in
- * {@link com.github.waifu.interactions} or a subpackage, and have this class implement
+ * {@link com.github.gander.interactions} or a subpackage, and have this class implement
  * {@link ISlashInteraction}. Refer to the documentation on how to create an effective
  * implementation.<br>
  * Within this new class, create and initialize a public static instance of your handler and

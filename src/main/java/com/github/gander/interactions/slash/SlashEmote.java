@@ -1,6 +1,6 @@
-package com.github.waifu.interactions.slash;
+package com.github.gander.interactions.slash;
 
-import com.github.waifu.interactions.buttons.IButtonInteraction;
+import com.github.gander.interactions.buttons.IButtonInteraction;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;

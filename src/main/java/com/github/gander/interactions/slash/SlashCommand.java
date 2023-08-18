@@ -1,4 +1,4 @@
-package com.github.waifu.interactions.slash;
+package com.github.gander.interactions.slash;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

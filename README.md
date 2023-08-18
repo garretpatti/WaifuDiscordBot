@@ -1,4 +1,4 @@
-# WaifuDiscordBot
+# GanderDiscordBot
 
 ## About
 A discord bot.

@@ -1,6 +1,6 @@
-package com.github.waifu.interactions.slash;
+package com.github.gander.interactions.slash;
 
-import com.github.waifu.chat.ChatCenter;
+import com.github.gander.chat.ChatCenter;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;

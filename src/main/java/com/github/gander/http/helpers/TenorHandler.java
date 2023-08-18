@@ -1,4 +1,4 @@
-package com.github.waifu.http.helpers;
+package com.github.gander.http.helpers;
 
 import org.json.JSONObject;
 

@@ -1,4 +1,4 @@
-package com.github.waifu.interactions.slash;
+package com.github.gander.interactions.slash;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;

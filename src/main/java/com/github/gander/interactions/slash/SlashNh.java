@@ -1,4 +1,4 @@
-package com.github.waifu.interactions.slash;
+package com.github.gander.interactions.slash;
 
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;

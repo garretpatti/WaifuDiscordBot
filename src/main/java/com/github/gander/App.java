@@ -1,8 +1,8 @@
-package com.github.waifu;
+package com.github.gander;
 
-import com.github.waifu.chat.ChatCenter;
-import com.github.waifu.chat.ResponseCenter;
-import com.github.waifu.interactions.InteractionCenter;
+import com.github.gander.chat.ChatCenter;
+import com.github.gander.chat.ResponseCenter;
+import com.github.gander.interactions.InteractionCenter;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import net.dv8tion.jda.api.JDA;

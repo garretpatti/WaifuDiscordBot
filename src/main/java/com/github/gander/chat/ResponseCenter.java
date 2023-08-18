@@ -1,4 +1,4 @@
-package com.github.waifu.chat;
+package com.github.gander.chat;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -20,8 +20,8 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-import com.github.waifu.App;
-import com.github.waifu.chat.commands.*;
+import com.github.gander.App;
+import com.github.gander.chat.commands.*;
 import com.google.gson.JsonArray;
 
 public class ResponseCenter extends ListenerAdapter{

@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.github</groupId>
-    <artifactId>waifu</artifactId>
+    <artifactId>gander</artifactId>
     <version>1.0-beta</version>
 
     <properties>
@@ -51,7 +51,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>com.github.waifu.App</mainClass>
+                            <mainClass>com.github.gander.App</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>
